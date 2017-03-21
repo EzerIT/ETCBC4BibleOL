@@ -1,6 +1,20 @@
 MIT License
 
-Copyright (c) 2017 Ezer IT Consulting
+The files
+   ETCBC4-frequency3.01_progression.xlsx
+   ETCBC4-frequency3.01_progression.csv
+   extra_tenses/cohortative.mql
+   extra_tenses/emphatic_imperative.mql
+   extra_tenses/jussive.mql
+are Copyright (c) 2017 by Oliver Ganz.
+
+The file
+   translit_handler.cpp
+is Copyright (c) 2017 by Nicolai Winther-Nielsen and Ezer IT Consulting.
+
+The remaining files are
+Copyright (c) 2017 by Ezer IT Consulting.
+
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

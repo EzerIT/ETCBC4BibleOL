@@ -1,0 +1,145 @@
+// Copyright © 2017 Oliver Glanz.
+// Released under an MIT license.
+
+select all objects where
+[clause //(692 cases)
+	[word lex = ">L="]
+	..
+	[word FOCUS sp IN (verb)
+	AND vt = impf
+	AND ps IN (p1,p2,p3)
+	AND NOT vbe="H="
+	]
+]
+OR
+[clause //(67 cases)
+	[word FOCUS sp IN (verb)
+	AND vt = impf
+	AND ps IN (p1,p2,p3)
+	AND NOT vbe="H="
+	]
+	[word lex ="N>"]
+]
+OR
+[word FOCUS sp IN (verb) //searching Jussiv forms of all verbal calsses but i-nun, ii-waw, ii-yod, iii-he (39 cases)
+	AND vs = hif
+	AND vt = impf
+	AND ps IN (p1,p2,p3)
+	AND g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*(\:|\:A).*[>BGDHWZXVJKLMNS<PYQRFCT](\;|E).*[>BGDWZXVJKLMNS<PYQRFCT].*$'
+	AND NOT g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*(\:|\:A).*[J][L]$' //excludes 2 Chr 5:2
+	AND NOT g_prs  ~ '\+.*' //exclude first all pronominal suffixes because the change the vowels and often do not allow for the distinction between short and long form
+	AND NOT vbe = "H="  // exclude cohortatives and adhortatives
+]
+OR
+[word //searching Jussiv forms of the ii-yod/ii-waw verbal class (64 cases)
+		//excluding P"Alef verbs
+		NOTEXIST [word FOCUS sp IN (verb) AND lex =">MR["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex =">KL["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex =">BD["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex =">BH["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex =">PH["]
+
+		//excluding P"Nun verbs
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[N][>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYQRFCT]']
+		NOTEXIST [word sp IN (verb) AND lex ="LQX["] //analog P"Nun verbs
+
+		//excluding P"Jod verbs
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ="JVB["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ="JLL["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ="JMN["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ="JNQ["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ="JQY["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ="JCN["]
+
+		//excluding P"Waw verbs
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[J][>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYQRFCT]']
+		NOTEXIST [word sp IN (verb) AND lex ="HLK["] //analog P"Waw vebs
+
+		//excluding Ayin"Waw-Yod verbs
+		//NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][WJ][>BGDHWZXVJKLMNS<PYQRFCT]']
+
+		//excluding Ayin"Ayin verbs
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][>][>]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][B][B]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][G][G]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][D][D]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][H][H]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][W][W]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][Z][Z]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][X][X]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][V][V]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][J][J]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][K][K]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][L][L]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][M][M]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][N][N]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][S][S]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][<][<]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][P][P]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][Y][Y]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][Q][Q]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][R][R]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][F][F]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][C][C]']
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~'[>BGDHWZXVJKLMNS<PYQRFCT][T][T]']
+		
+		//excluding L"Alef verbs
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYQRFCT][>]']
+		
+		//excluding L"Hey verbs
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYQRFCT][H]']
+
+		//excluding OTHER unwanted verbs
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ="HJH["]
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ="XJH["]
+
+		//excluding Primae Guturalis
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[><RHX][>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYQRFCT]']	//searches for Primae Gutturalis
+
+		//excluding Mediae Guturalis
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][<>RHX][>BGDHWZXVJKLMNS<PYQRFCT]']	//searches for Mediae Gutturalis
+
+		//excluding Tertiae Guturalis
+		NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYQRFCT][<RX]']		//searches for Tertiae Gutturalis
+		
+		[//searching for Ayin"Waw-Yod verbs
+		
+			NOTEXIST [word	lex = "BWC["]
+			NOTEXIST [word 	g_word ~ 'T.@C;71B:N@H$'] //excludes a non-fitting case in Job 20:10 - does not work!
+			NOTEXIST [word	g_word ~ 'T.@CO73B:N@$'] //excludes a non-fitting case in Eze 16:55 - does not work!
+			NOTEXIST [word 	g_word ~ 'T.@CO74B:N@$'] //excludes a non-fitting case in Eze 16:55 - does not work!
+			NOTEXIST [word	g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*(O|\;).*[W].*[>BGDHZXVJKLMNS<PYQRFCT].*$']
+
+			
+			[word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][WJ][>BGDHWZXVJKLMNS<PYQRFCT]'
+			AND vs IN (qal,hif)
+			AND vt = impf
+			AND ps IN (p1,p2,p3)
+			AND g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*(O|\;).*[>BGDHZXVJKLMNS<PYQRFCT].*$'
+			AND NOT g_prs  ~ '\+.*' //exclude first all pronominal suffixes because the change the vowels and often do not allow for the distinction between short and long form
+			AND NOT vbe = "H="  // exclude cohortatives and adhortatives
+			]
+		]
+]
+OR
+[word	//searching for L"Hey verbs (158 cases)
+		[ word
+			NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYRFCT][H]'
+				AND vs IN (qal,nif,hif,piel,pual,hof)
+				AND vt = impf
+				AND ps IN (p1,p2,p3)
+				AND g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*[>BGDWZXVJkLmnS<PYQRFCT].*[SPNMJ]$'			
+				]
+			[word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYRFCT][H]'
+				AND vs IN (qal,nif,hif,piel,pual,hof)
+				AND vt = impf
+				AND ps IN (p1,p2,p3)
+				AND g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*[>BGDWZXVJKLMNS<PYQRFCT]$'
+				AND NOT g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*[>BGDWZXVJKLMNS<PYQRFCT].*[H].*_[SPN]?$' //excludes these cases: Isa 25:5, Isa 44:5, 
+				AND NOT g_word ~ 'TIK:HE75H00_S$' //excludes Sach 11:17
+				AND NOT g_prs  ~ '\+.*' //exclude first all pronominal suffixes because the change the vowels and often do not allow for the distinction between short and long form
+				AND NOT vbe = "H="  // exclude cohortatives and adhortatives
+			]
+		]
+]
+GO
