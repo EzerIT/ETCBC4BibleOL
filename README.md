@@ -23,3 +23,58 @@ The modifications made to the Emdros database are primarily:
 * Jussive, cohortative, and emphatic imperative verb tenses have be added.
 * The unused verbal stems *esht* and *etta* have been removed from the *verbal_stem_t* enumeration type.
 * The lower dots (Puncta extraordinaria) under the first word of Ps 27:13 have been fixed by replacing Unicode 0323 with 05C5.
+
+
+
+## Prerequisites
+
+The code is intended to run on a Linux system. The following software must be available:
+
+* Gnu C++ compiler with C++11 support
+* libprcecpp
+* Emdros
+
+
+## The Makefile
+
+A Makefile is supplied which can generate the following targets: ETCBC4 and ETCBC4_words.db. The
+command "make all" generates both targets.
+
+### Generating ETCBC4
+
+The command "make ETCBC4" modifies an existing ETCBC4 database so that it can be used with Bible OL.
+
+The source database is taken from the file specified in the variable BHS4 in the Makefile.
+
+The modification consists of the following steps:
+
+* Building the *emdros_updater* program from the C++ source code.
+* Running the *emdros_updater* program with input from the source database. This generates an MQL
+  file with the necessary modifications.
+* Running *mql* to apply the modifications.
+* Piping the database through the *change_mql.sh* script. This adds "FROM SET" to many Emdros
+  feature declations. (This cannot be done by *emdros_updater* because of what is prsumably a
+  bug in Emdros.)
+* Generating a database from the output from *change_mql.sh*.
+* Running *fix_lower_dots.sh* on the database. This fixes the lower dots under the first word of
+  Ps 27:13.
+* Running *extra_tenses/make_update.sh* on the database. This adds the verb tenses *cohortative,
+  jussive* and *emphatic imperative* to the database and applies the new tenses where necessary.
+
+
+### Generating ETCBC4_words.db
+
+The file ETCBC4_words.db is an SQLite3 database containing information used to generate multiple
+choice questions for a few features.
+
+The generation of the database consists of the following steps:
+
+* Building the *worddb* program from the C++ source code.
+* Running *worddb* on the modified ETCBC4 database. This will generate an SQL text file.
+* Running *sqlite3* on the SQL text file to generate ETCBC4_words.db.
+
+
+## Installing in Bible Online Learner
+
+The files ETCBC4 and ETCBC4_words.db must be copied to the *db* folder of Bible OL. Additionally,
+the Bible OL JSON files describing the database may need to be modified.
