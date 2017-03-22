@@ -60,16 +60,16 @@ int main(int argc, char **argv)
     for (StrawOk str : SheafOk{EE.getSheaf()}) {
         for (const MatchedObject mo : str) {
             string lex {mo.getFeatureAsString(0)};
-            string text_nocant_utf8 {mo.getFeatureAsString(1)};
-            string text_nopunct_translit {mo.getFeatureAsString(2)};
+            string g_word_nocant_utf8 {mo.getFeatureAsString(1)};
+            string g_word_nopunct_translit {mo.getFeatureAsString(2)};
             string g_prs_utf8 {mo.getFeatureAsString(3)};
             string g_prs_translit {mo.getFeatureAsString(4)};
 
             allLexemes.insert(lex);
 
-            auto text_pair = make_pair(text_nocant_utf8,text_nopunct_translit);
-            allWords.insert(text_pair);
-            lexeme2word[lex].insert(text_pair);
+            auto g_word_pair = make_pair(g_word_nocant_utf8,g_word_nopunct_translit);
+            allWords.insert(g_word_pair);
+            lexeme2word[lex].insert(g_word_pair);
 
             auto suf_pair = make_pair(g_prs_utf8,g_prs_translit);
             allSuffixes.insert(suf_pair);

@@ -86,7 +86,7 @@ void translit_handler::chk_o(const map<string,string> * fmapp)
     if (words.size()==5) {
         // Now we can transliterate the middle word
 
-        bool ketiv = words[2].at("g_word").find('*')!=string::npos;
+        bool ketiv = !words[2].at("qere_utf8").empty();
 
         translit_strings translits;
 
@@ -115,7 +115,7 @@ void translit_handler::chk_o(const map<string,string> * fmapp)
         
         translits.g_voc_lex_translit = transliterate("", words[2].at("g_voc_lex_utf8"), "", words[2], false, false);
 
-        if (words[2].count("qere_utf8")>0)
+        if (!words[2].at("qere_utf8").empty())
             translits.qere_translit = transliterate("", words[2].at("qere_utf8"), "", words[2], false, false);
         
         char last_char = translits.g_word_translit.back();

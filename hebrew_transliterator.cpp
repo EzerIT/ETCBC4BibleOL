@@ -485,11 +485,11 @@ string transliterate(string preceding_text, string input,
             input_attributes.at("ps") == "p3" &&
             input_attributes.at("gn") == "f" &&
             input_attributes.at("nu") == "sg") {
-            return "HÎ"+HOOK_LEFT+input_attributes.at("g_suffix_translit");
+            return "HÎ"+HOOK_LEFT;
         }
 
         if (input_attributes.at("lex") == "JHWH/")
-            return "YHWH"+input_attributes.at("g_suffix_translit");
+            return "YHWH";
         // Qere perpetuum - end
     }
 
