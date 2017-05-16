@@ -37,7 +37,7 @@ void strip_handler::list_features(set<string>& req)
 {
     req.insert({"g_lex_utf8", "g_nme_utf8",  "g_pfm_utf8", "g_prs_utf8", "g_vbs_utf8",
                 "g_vbe_utf8", "g_word_utf8", "g_uvf_utf8", "lex_utf8",   "g_voc_lex_utf8",
-                "g_word" });
+                "g_word",     "g_suffix_utf8" });
 }
 
 
@@ -151,8 +151,17 @@ void strip_handler::prepare_object(map<string,string>& fmap)
     // These need to be modified for proper final consonant.
     fmap["g_nme_utf8"] = fix_final(fmap["g_nme_utf8"]); 
     fmap["g_prs_utf8"] = fix_final(fmap["g_prs_utf8"]); 
-    fmap["g_vbe_utf8"] = fix_final(fmap["g_vbe_utf8"]); 
+    fmap["g_vbe_utf8"] = fix_final(fmap["g_vbe_utf8"]);
 
+    auto suffix = fmap.at("g_suffix_utf8");
+    if (suffix.length()>0) {
+        auto x = fix_final(fmap["g_word_utf8"]);
+        if (x!=fmap["g_word_utf8"]) {
+            cout << fmap["g_word_utf8"] << " " << fmap["verse_label"] << endl;
+            fmap["g_word_utf8"] = x;
+            fmap["g_word_utf8_modified"] = "y";
+        }
+    }
     
     fmap["g_lex_cons_utf8"]     = strip_vowels(strip_cant(fmap.at("g_lex_utf8")));
     fmap["g_nme_cons_utf8"]     = strip_vowels(strip_cant(fmap.at("g_nme_utf8")));
@@ -192,6 +201,10 @@ string strip_handler::define_features()
 string strip_handler::update_object(const map<string,string>& fmap)
 {
     return
+        ((fmap.count("g_word_utf8_modified")>0 && fmap.at("g_word_utf8_modified")=="y")
+         ? "    g_word_utf8 := \""          + fmap.at("g_word_utf8")          + "\";\n"
+         : "") +
+
         "    g_nme_utf8 := \""          + fmap.at("g_nme_utf8")          + "\";\n"
         "    g_prs_utf8 := \""          + fmap.at("g_prs_utf8")          + "\";\n"
         "    g_vbe_utf8 := \""          + fmap.at("g_vbe_utf8")          + "\";\n"
