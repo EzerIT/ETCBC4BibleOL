@@ -20,6 +20,7 @@
 #include "verb_class_handler.hpp"
 #include "strip_handler.hpp"
 #include "translit_handler.hpp"
+#include "suffix_handler.hpp"
 
 using namespace std;
 
@@ -179,6 +180,7 @@ int main(int argc, char **argv)
             make_verb_class_handler(),
             make_strip_handler(),
             make_translit_handler(),
+            make_suffix_handler(),
         };
 
         //==================================================
