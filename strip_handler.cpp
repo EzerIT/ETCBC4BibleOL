@@ -162,6 +162,13 @@ void strip_handler::prepare_object(map<string,string>& fmap)
             fmap["g_word_utf8_modified"] = "y";
         }
     }
+
+
+    // Fix an error in ETCBC4:
+
+    if (fmap.at("g_voc_lex_utf8")=="\xd7\x99\xd6\xb0\xd7\xa8\xd6\xb4\xd7\x99\xd7\x97\xd6\xb9\xd7\x95\xd6\xbf \xd7\x99\xd6\xb0\xd7\xa8\xd6\xb4\xd7\x97\xd6\xb9\xd7\x95")
+        fmap["g_voc_lex_utf8"] = "\xd7\x99\xd6\xb0\xd7\xa8\xd6\xb4\xd7\x97\xd6\xb9\xd7\x95";
+
     
     fmap["g_lex_cons_utf8"]     = strip_vowels(strip_cant(fmap.at("g_lex_utf8")));
     fmap["g_nme_cons_utf8"]     = strip_vowels(strip_cant(fmap.at("g_nme_utf8")));
@@ -204,7 +211,12 @@ string strip_handler::update_object(const map<string,string>& fmap)
         ((fmap.count("g_word_utf8_modified")>0 && fmap.at("g_word_utf8_modified")=="y")
          ? "    g_word_utf8 := \""          + fmap.at("g_word_utf8")          + "\";\n"
          : "") +
-
+        
+        // Fix an error in ETCBC4:
+        (fmap.at("g_voc_lex_utf8")=="\xd7\x99\xd6\xb0\xd7\xa8\xd6\xb4\xd7\x97\xd6\xb9\xd7\x95"
+         ? "    g_voc_lex_utf8 := \"" +   fmap.at("g_voc_lex_utf8")      + "\";\n"
+         : "") +
+        
         "    g_nme_utf8 := \""          + fmap.at("g_nme_utf8")          + "\";\n"
         "    g_prs_utf8 := \""          + fmap.at("g_prs_utf8")          + "\";\n"
         "    g_vbe_utf8 := \""          + fmap.at("g_vbe_utf8")          + "\";\n"

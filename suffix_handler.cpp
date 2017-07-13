@@ -31,15 +31,14 @@ string suffix_handler::pre_create()
 {
     return
         "UPDATE ENUMERATION person_t = {\n"
-        "    ADD absent = 4,\n"
-        "}\n"
+        "    ADD absent = 4\n"
+        "} GO\n"
         "UPDATE ENUMERATION number_t = {\n"
-        "    ADD absent = 4,\n"
-        "}\n"
+        "    ADD absent = 4\n"
+        "} GO\n"
         "UPDATE ENUMERATION gender_t = {\n"
-        "    ADD absent = 3,\n"
-        "}\n"
-        "GO\n";
+        "    ADD absent = 3\n"
+        "} GO\n";
 }
 
 string suffix_handler::update_object(const map<string,string>& fmap)
