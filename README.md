@@ -17,7 +17,7 @@ The modifications made to the Emdros database are primarily:
     - *g_word_nocant* (g_word with cantillation marks removed)
     - *g_word_nocant_utf8* (g_word_utf8 with cantillation marks removed)
     - *g_lex_cons_utf8, g_nme_cons_utf8, g_pfm_cons_utf8, g_prs_cons_utf8, g_vbs_cons_utf8, g_vbe_cons_utf8, g_uvf_cons_utf8, lex_cons_utf8, g_voc_lex_cons_utf8, g_word_cons_utf8* (the value of the corresponding XXX_utf8 features but with vowels and cantillation marks removed)
-    - *g_word_translit, g_word_nopunct_translit, g_suffix_translit, g_prs_translit, g_vbs_translit, g_pfm_translit, g_vbe_translit, g_nme_translit, g_uvf_translit, g_voc_lex_translit, qere_translit* (the transliterated version of the corresponding XXX_utf8 features)
+    - *g_word_translit, g_word_nopunct_translit, g_suffix_translit, g_prs_translit, g_vbs_translit, g_pfm_translit, g_vbe_translit, g_nme_translit, g_uvf_translit, g_voc_lex_translit, g_lex_translit, qere_translit* (the transliterated version of the corresponding XXX_utf8 features)
     - verb_class (the verb class)
 * Erroneous non-final consonants in *g_nme_utf8, g_prs_utf8,* and *g_vbe_utf8* have been fixed.
 * Jussive, cohortative, and emphatic imperative verb tenses have be added.
@@ -30,7 +30,7 @@ The modifications made to the Emdros database are primarily:
 
 The code is intended to run on a Linux system. The following software must be available:
 
-* Gnu C++ compiler with C++11 support
+* Gnu C++ compiler with C++17 support
 * libprcecpp
 * Emdros
 
@@ -73,8 +73,19 @@ The generation of the database consists of the following steps:
 * Running *worddb* on the modified ETCBC4 database. This will generate an SQL text file.
 * Running *sqlite3* on the SQL text file to generate ETCBC4_words.db.
 
+### Generating ETCBC4_hints.db
+
+The file ETCBC4_hints.db is an SQLite3 database containing information used to generate hints
+for exercises about verbs with ambiguous forms.
+
+The generation of the database consists of the following steps:
+
+* Building the *hintsdb* program from the C++ source code.
+* Running *hintsdb* on the modified ETCBC4 database. This will generate an SQL text file.
+* Running *sqlite3* on the SQL text file to generate ETCBC4_hints.db.
+
 
 ## Installing in Bible Online Learner
 
-The files ETCBC4 and ETCBC4_words.db must be copied to the *db* folder of Bible OL. Additionally,
+The files ETCBC4, ETCBC4_words.db, and ETCBC4_hints.db must be copied to the *db* folder of Bible OL. Additionally,
 the Bible OL JSON files describing the database may need to be modified.
