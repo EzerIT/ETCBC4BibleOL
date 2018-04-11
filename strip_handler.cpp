@@ -157,7 +157,7 @@ void strip_handler::prepare_object(map<string,string>& fmap)
     if (suffix.length()>0) {
         auto x = fix_final(fmap["g_word_utf8"]);
         if (x!=fmap["g_word_utf8"]) {
-            cout << fmap["g_word_utf8"] << " " << fmap["verse_label"] << endl;
+            cout << "Bad final character corrected: " << fmap["g_word_utf8"] << " " << fmap["verse_label"] << endl;
             fmap["g_word_utf8"] = x;
             fmap["g_word_utf8_modified"] = "y";
         }

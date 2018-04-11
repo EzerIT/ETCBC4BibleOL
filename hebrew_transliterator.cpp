@@ -150,8 +150,11 @@ vector<string> heb {
 //        "אֱלֹהִ֑ים",
 //    "פָּצְתָ֣ה",
 //        "\xd6\x9c\xd6\xb0\xd7\xaa"
-    "\xd7\x95\xd6\xbc\xd7\x9f\xd6\xbc",
-    "\xd7\x95\xd6\xbc\xd7\xa0\xd6\xbc"
+//    "\xd7\x95\xd6\xbc\xd7\x9f\xd6\xbc",
+//    "\xd7\x95\xd6\xbc\xd7\xa0\xd6\xbc"
+    "יְרוּשָׁלְַ֗מָה",
+        "\xd7\x99\xd6\xb0\xd7\xa8\xd7\x95\xd6\xbc\xd7\xa9\xd7\x81\xd6\xb8\xd7\x9c\xd6\xb7\xd6\xb0\xd7\x9e\xd6\xb8\xd7\x94",
+        "יְרוּשָׁלְַם"
 };
 #endif
 
@@ -324,7 +327,7 @@ void initialize_translit_rules()
     rules.emplace_back(cantils+optdagesh+QAMETS+cons,SHEWA, "",                 E_SUPERSCRIPT_BACKWARDS, E_SUPERSCRIPT_BACKWARDS_UC );
     rules.emplace_back(consND+optcantils+DAGESH,     SHEWA, "",                 E_SUPERSCRIPT_BACKWARDS, E_SUPERSCRIPT_BACKWARDS_UC );
     rules.emplace_back(consND+optrafe,               SHEWA, "",                 "",                      ""                         ); // Rafe only relevant in Is 22:10
-    rules.emplace_back("["+QAMETS+PATAH+"]"+cantils, SHEWA, "",                 "y",                     "Y"                        ); // only in yᵊrûšālaymāʰ/yᵊrûšālāymāʰ
+    rules.emplace_back("["+QAMETS+PATAH+"]"+optcantils, SHEWA, "",                 "y",                     "Y"                        ); // only in yᵊrûšālaymāʰ/yᵊrûšālāymāʰ
 
 
     // Rules for qamets:
@@ -421,9 +424,10 @@ void initialize_translit_rules()
     rules.emplace_back("",                        LAMED+optcantils+DAGESH,        "",     "ll",                  "LL"                  );
     rules.emplace_back("",                        LAMED,                          "",     "l",                   "L"                   );
 
-    rules.emplace_back("",                        FINAL_MEM,                      "",     "m",                   "M"                   );
     rules.emplace_back("",                        MEM+optcantils+DAGESH,          "",     "mm",                  "MM"                  );
     rules.emplace_back("",                        MEM,                            "",     "m",                   "M"                   );
+    rules.emplace_back("",                        FINAL_MEM+optcantils+DAGESH,    "",     "mm",                  "MM"                  ); // For g_lex_utf8
+    rules.emplace_back("",                        FINAL_MEM,                      "",     "m",                   "M"                   );
 
     rules.emplace_back("",                        NUN+optcantils+DAGESH,          "",     "nn",                  "NN"                  );
     rules.emplace_back("",                        FINAL_NUN+optcantils+DAGESH,    "",     "nn",                  "NN"                  ); // For verbal ending
@@ -442,6 +446,7 @@ void initialize_translit_rules()
     rules.emplace_back("",                        PE+optcantils+DAGESH,           "",     "p",                   "P"                   );
     rules.emplace_back("",                        PE,                             "",     "f",                   "F"                   );
 
+    rules.emplace_back("",                        FINAL_TSADE+optcantils+DAGESH,        "",     S_DOT+S_DOT,           S_DOT_UC+S_DOT_UC     ); // For g_lex_utf8
     rules.emplace_back("",                        FINAL_TSADE,                    "",     S_DOT,                 S_DOT_UC              );
     rules.emplace_back("",                        TSADE+optcantils+DAGESH,        "",     S_DOT+S_DOT,           S_DOT_UC+S_DOT_UC     );
     rules.emplace_back("",                        TSADE,                          "",     S_DOT,                 S_DOT_UC              );
@@ -573,6 +578,10 @@ int main()
             {"lex",""},
         };
 
+        for (unsigned char c : h)
+            cout << hex << setw(2) << setfill('0') << (unsigned int)c << " ";
+        cout << "\n" << dec;
+        
         string lat {transliterate("",h,"",att,false,false)};
 
         mlout << lat << endl;

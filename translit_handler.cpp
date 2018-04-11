@@ -18,6 +18,7 @@ struct translit_strings {
     string g_word_translit;
     string g_word_nopunct_translit;
     string g_suffix_translit;
+    string g_lex_translit;
     string g_prs_translit;
     string g_vbs_translit;
     string g_pfm_translit;
@@ -115,6 +116,21 @@ void translit_handler::chk_o(const map<string,string> * fmapp)
         
         translits.g_voc_lex_translit = transliterate("", words[2].at("g_voc_lex_utf8"), "", words[2], false, false);
 
+        // No words have both a g_vbe_utf8 and a g_nme_utf8.
+        // g_nme_utf8 always starts with a GERESH ("\u059c" or "\xd6\x9c")
+        if (!words[2].at("g_vbe_utf8").empty())
+            translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), words[2].at("g_vbe_utf8") + words[2].at("g_uvf_utf8"), words[2], false, false);
+        else if (!words[2].at("g_nme_utf8").empty()) {
+            string nm = words[2]["g_nme_utf8"];
+            if (nm[0]!='\xd6' || nm[1]!='\x9c')
+                cerr << "self=" << words[2].at("self") << " g_nme_utf8 does not start with GERES\n";
+            else 
+                translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), nm.substr(2) + words[2].at("g_uvf_utf8"), words[2], false, false);
+        }
+        else
+            translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), words[2].at("g_uvf_utf8"), words[2], false, false);
+
+        
         if (!words[2].at("qere_utf8").empty())
             translits.qere_translit = transliterate("", words[2].at("qere_utf8"), "", words[2], false, false);
         
@@ -157,6 +173,7 @@ string translit_handler::define_features()
         "    ADD g_word_translit : string DEFAULT \"\";\n"
         "    ADD g_word_nopunct_translit : string DEFAULT \"\";\n"
         "    ADD g_suffix_translit : string DEFAULT \"\";\n"
+        "    ADD g_lex_translit : string DEFAULT \"\";\n"
         "    ADD g_prs_translit : string DEFAULT \"\";\n"
         "    ADD g_vbs_translit : string DEFAULT \"\";\n"
         "    ADD g_pfm_translit : string DEFAULT \"\";\n"
@@ -176,6 +193,7 @@ string translit_handler::update_object(const map<string,string>& fmap)
         "    g_word_translit := \""           + translits.g_word_translit           + "\";\n" 
         "    g_word_nopunct_translit := \""   + translits.g_word_nopunct_translit   + "\";\n" 
         "    g_suffix_translit := \""         + translits.g_suffix_translit         + "\";\n" 
+        "    g_lex_translit := \""            + translits.g_lex_translit            + "\";\n" 
         "    g_prs_translit := \""            + translits.g_prs_translit            + "\";\n" 
         "    g_vbs_translit := \""            + translits.g_vbs_translit            + "\";\n" 
         "    g_pfm_translit := \""            + translits.g_pfm_translit            + "\";\n" 
