@@ -8,3 +8,6 @@ worddb.sql
 ETCBC4_words.db
 update.mql
 ETCBC4
+hintsdb
+hintsdb.sql
+ETCBC4_hints.db
