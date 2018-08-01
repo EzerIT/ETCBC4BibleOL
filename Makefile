@@ -34,6 +34,7 @@ ETCBC4:	update.mql
 	mql x.mql
 	rm x.mql
 	./fix_lower_dots.sh $@
+	cp $@ ETCBC4-before-extra-tenses
 	cd extra_tenses; ./make_update.sh; mv ETCBC4 ..
 
 worddb: $(OBJFILES2)
@@ -59,6 +60,9 @@ hintsdb.sql: hintsdb ETCBC4
 ETCBC4_hints.db: hintsdb.sql
 	rm -f $@
 	sqlite3 $@ < $+
+
+testtranslit: hebrew_transliterator.cpp hebrew_transliterator.hpp util.hpp util.o
+	$(CXX) $(CXXFLAGS) $(LDLIBS) -D TEST_TRANSLIT -o $@ $< util.o $(LDFLAGS)
 
 
 clean:
