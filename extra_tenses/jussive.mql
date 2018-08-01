@@ -124,12 +124,15 @@ OR
 OR
 [word	//searching for L"Hey verbs (158 cases)
 		[ word
+			NOTEXIST [word g_word ~ '\*T<F$'] // excludes the K/Q form in Jer 40:16 - does not work
+			NOTEXIST [word g_word ~ 'T.E92M:XIJ$'] // excludes the weired from in Jer 18:23 - does not work
+			NOTEXIST [word g_word ~ 'J:H75W.>$'] // excludes the weired from in Ecc 11:3
 			NOTEXIST [word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYRFCT][H]'
-				AND vs IN (qal,nif,hif,piel,pual,hof)
-				AND vt = impf
-				AND ps IN (p1,p2,p3)
-				AND g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*[>BGDWZXVJkLmnS<PYQRFCT].*[SPNMJ]$'			
-				]
+						AND vs IN (qal,nif,hif,piel,pual,hof)
+						AND vt = impf
+						AND ps IN (p1,p2,p3)
+						AND g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*[>BGDWZXVJkLmnS<PYQRFCT].*[SPNMJ]$'			
+					 ]
 			[word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYRFCT][H]'
 				AND vs IN (qal,nif,hif,piel,pual,hof)
 				AND vt = impf
@@ -137,6 +140,19 @@ OR
 				AND g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*[>BGDWZXVJKLMNS<PYQRFCT]$'
 				AND NOT g_word ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*[>BGDWZXVJKLMNS<PYQRFCT].*[H].*_[SPN]?$' //excludes these cases: Isa 25:5, Isa 44:5, 
 				AND NOT g_word ~ 'TIK:HE75H00_S$' //excludes Sach 11:17
+				AND NOT g_prs  ~ '\+.*' //exclude first all pronominal suffixes because the change the vowels and often do not allow for the distinction between short and long form
+				AND NOT vbe = "H="  // exclude cohortatives and adhortatives
+			]
+			OR
+			[word FOCUS sp IN (verb) AND lex ~ '[>BGDHWZXVJKLMNS<PYQRFCT][>BGDHWZXVJKLMNS<PYRFCT][H]'
+				AND vs IN (qal,nif,hif,piel,pual,hof)
+				AND vt = impf
+				AND ps IN (p1,p2,p3)
+				AND g_cons ~ '^[>JT].*[>BGDHWZXVJKLMNS<PYQRFCT].*[>BGDWZXVJKLMNS<PYQRFCT]$'
+				AND NOT g_word ~ '\*JR>$' // excludes the weired form in Jer 17:8
+				AND NOT g_word ~ '\*JHJ$' // excludes the K/Q form in 1 Kgs 1:37
+				AND NOT g_word ~ 'J:CUN.E75>$' // excludes the weired from in Ecc 8:1
+				AND NOT vbe ~ '[JWN]'
 				AND NOT g_prs  ~ '\+.*' //exclude first all pronominal suffixes because the change the vowels and often do not allow for the distinction between short and long form
 				AND NOT vbe = "H="  // exclude cohortatives and adhortatives
 			]

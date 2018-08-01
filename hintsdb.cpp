@@ -179,7 +179,7 @@ int main(int argc, char **argv)
     }
 
     read_csv_t csv;
-    string csvfile{"BibleOL_verbal-ambiguity-project_v1.23.csv"};
+    string csvfile{"BibleOL_verbal-ambiguity-project_v1.24.csv"};
     
     if (csv.open(csvfile) < 0) {
         cout << "Cannot open file " << csvfile << "\n";
@@ -233,7 +233,7 @@ int main(int argc, char **argv)
 
         vector<string> row = csv.read_row();
         if (row.size()==0) {
-            cerr << "Unexpected OEF in spreadsheet\n";
+            cerr << "Unexpected EOF in spreadsheet\n";
             return 1;
         }
         
