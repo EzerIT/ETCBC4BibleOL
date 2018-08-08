@@ -46,7 +46,9 @@ sed \
 -e 's/^  lex_cons_utf8 : string DEFAULT/  lex_cons_utf8 : string FROM SET DEFAULT/' \
 -e 's/^  g_voc_lex_cons_utf8 : string DEFAULT/  g_voc_lex_cons_utf8 : string FROM SET WITH INDEX DEFAULT/' \
 -e 's/^  g_word_nocant : string DEFAULT/  g_word_nocant : string FROM SET WITH INDEX DEFAULT/' \
+-e 's/^  g_word_nostress : string DEFAULT/  g_word_nostress : string FROM SET WITH INDEX DEFAULT/' \
 -e 's/^  g_word_nocant_utf8 : string DEFAULT/  g_word_nocant_utf8 : string FROM SET WITH INDEX DEFAULT/' \
+-e 's/^  g_word_nostress_utf8 : string DEFAULT/  g_word_nostress_utf8 : string FROM SET WITH INDEX DEFAULT/' \
 -e 's/^  g_suffix : string DEFAULT/  g_suffix : string FROM SET DEFAULT/' \
 -e 's/^  g_suffix_utf8 : string DEFAULT/  g_suffix_utf8 : string FROM SET DEFAULT/' \
 -e 's/^  g_word_translit : string DEFAULT/  g_word_translit : string FROM SET DEFAULT/' \

@@ -67,6 +67,7 @@ translit_handler::translit_handler()
 void translit_handler::list_features(set<string>& req)
 {
     initialize_translit_rules();
+    initialize_translit_verbrules();
 
     req.insert({"g_prs_utf8", "g_vbs_utf8", "g_pfm_utf8",    "g_vbe_utf8",  "g_nme_utf8",     
                 "g_uvf_utf8", "g_word",     "g_suffix_utf8", "g_word_utf8", "g_voc_lex_utf8", 
@@ -105,34 +106,37 @@ void translit_handler::chk_o(const map<string,string> * fmapp)
 
                                                 words[2],
 
-                                                ketiv, true);
+                                                ketiv, true, true);
 
-        translits.g_prs_translit = transliterate("", words[2].at("g_prs_utf8"), "", words[2], false, false);
-        translits.g_vbs_translit = transliterate("", words[2].at("g_vbs_utf8"), "", words[2], false, false);
-        translits.g_pfm_translit = transliterate("", words[2].at("g_pfm_utf8"), "", words[2], false, false);
-        translits.g_vbe_translit = transliterate("", words[2].at("g_vbe_utf8"), "", words[2], false, false);
-        translits.g_nme_translit = transliterate("", words[2].at("g_nme_utf8"), "", words[2], false, false);
-        translits.g_uvf_translit = transliterate("", words[2].at("g_uvf_utf8"), "", words[2], false, false);
-        
-        translits.g_voc_lex_translit = transliterate("", words[2].at("g_voc_lex_utf8"), "", words[2], false, false);
+        translits.g_prs_translit = transliterate("", words[2].at("g_prs_utf8"), "", words[2], false, false, false);
+        translits.g_vbs_translit = transliterate("", words[2].at("g_vbs_utf8"), "", words[2], false, false, false);
+        translits.g_pfm_translit = transliterate("", words[2].at("g_pfm_utf8"), "", words[2], false, false, false);
+        translits.g_vbe_translit = transliterate("", words[2].at("g_vbe_utf8"), "", words[2], false, false, false);
+        translits.g_nme_translit = transliterate("", words[2].at("g_nme_utf8"), "", words[2], false, false, false);
+        translits.g_uvf_translit = transliterate("", words[2].at("g_uvf_utf8"), "", words[2], false, false, false);
+
+        if (words[2].at("sp")=="verb")
+            translits.g_voc_lex_translit = transliterate_verb_lex(words[2].at("g_voc_lex_utf8"));
+        else
+            translits.g_voc_lex_translit = transliterate("", words[2].at("g_voc_lex_utf8"), "", words[2], false, false, false);
 
         // No words have both a g_vbe_utf8 and a g_nme_utf8.
         // g_nme_utf8 always starts with a GERESH ("\u059c" or "\xd6\x9c")
         if (!words[2].at("g_vbe_utf8").empty())
-            translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), words[2].at("g_vbe_utf8") + words[2].at("g_uvf_utf8"), words[2], false, false);
+            translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), words[2].at("g_vbe_utf8") + words[2].at("g_uvf_utf8"), words[2], false, false, false);
         else if (!words[2].at("g_nme_utf8").empty()) {
             string nm = words[2]["g_nme_utf8"];
             if (nm[0]!='\xd6' || nm[1]!='\x9c')
                 cerr << "self=" << words[2].at("self") << " g_nme_utf8 does not start with GERES\n";
             else 
-                translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), nm.substr(2) + words[2].at("g_uvf_utf8"), words[2], false, false);
+                translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), nm.substr(2) + words[2].at("g_uvf_utf8"), words[2], false, false, false);
         }
         else
-            translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), words[2].at("g_uvf_utf8"), words[2], false, false);
+            translits.g_lex_translit = transliterate("", words[2].at("g_lex_utf8"), words[2].at("g_uvf_utf8"), words[2], false, false, false);
 
         
         if (!words[2].at("qere_utf8").empty())
-            translits.qere_translit = transliterate("", words[2].at("qere_utf8"), "", words[2], false, false);
+            translits.qere_translit = transliterate("", words[2].at("qere_utf8"), "", words[2], false, false, false);
         
         char last_char = translits.g_word_translit.back();
         string last_2_char = translits.g_word_translit.length()>=2 ? translits.g_word_translit.substr(translits.g_word_translit.length()-2) : "" ;

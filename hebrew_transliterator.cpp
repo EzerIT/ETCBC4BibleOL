@@ -78,16 +78,17 @@ namespace {
     const string TAV             = "\u05ea";
 
     // Regular expressions
-    const string vowels     = "([\u05b4-\u05bb]|("+WAW+DAGESH+"))";
-    const string longvow    = "(["+TSERE+HOLAM+"]|("+WAW+DAGESH+"))";
-    const string consND     = "[\u05d0-\u05ea]["+SHINDOT+SINDOT+"]?";
-    const string optdagesh  = DAGESH+"?";
-    const string optrafe    = RAFE+"?";
-    const string cons       = consND+optdagesh;
-    const string cantils    = "[\u0591-\u05af\u05bd]+";
-    const string optcantils = "[\u0591-\u05af\u05bd]*";
-    const string wordend    = "($|[ "+MAQAF+SOF_PASUQ+"])"; // "\\b" does not work in Hebrew
-    const string wordstart  = "(^|[ "+MAQAF+SOF_PASUQ+"]|^" + GERESH + ")"; // "\\b" does not work in Hebrew
+    const string vowels       = "([\u05b4-\u05bb]|("+WAW+DAGESH+"))";
+    const string longvow      = "(["+TSERE+HOLAM+"]|("+WAW+DAGESH+"))";
+    const string consND       = "[\u05d0-\u05ea]["+SHINDOT+SINDOT+"]?";
+    const string optdagesh    = DAGESH+"?";
+    const string optrafe      = RAFE+"?";
+    const string cons         = consND+optdagesh;
+    const string consNotAleph = "[\u05d1-\u05ea]["+SHINDOT+SINDOT+"]?" + optdagesh;
+    const string cantils      = "[\u0591-\u05af\u05bd]+";
+    const string optcantils   = "[\u0591-\u05af\u05bd]*";
+    const string wordend      = "($|[ "+MAQAF+SOF_PASUQ+"])"; // "\\b" does not work in Hebrew
+    const string wordstart    = "(^|[ "+MAQAF+SOF_PASUQ+"]|^" + GERESH + ")"; // "\\b" does not work in Hebrew
 
     const string ORIG = "ORIG"; // Special value to indicate no translation
 
@@ -141,37 +142,27 @@ namespace {
 }
 
 
-#ifdef TEST_TRANSLIT
-
-// Test strings
-
-vector<string> heb {
-//    "\u05d4\u059d\u0597\u05d5\u05bc\u05d0", // he pashta revia waw dagesh alef
-//        "אֱלֹהִ֑ים",
-//    "פָּצְתָ֣ה",
-//        "\xd6\x9c\xd6\xb0\xd7\xaa"
-//    "\xd7\x95\xd6\xbc\xd7\x9f\xd6\xbc",
-//    "\xd7\x95\xd6\xbc\xd7\xa0\xd6\xbc"
-    "יְרוּשָׁלְַ֗מָה",
-        "\xd7\x99\xd6\xb0\xd7\xa8\xd7\x95\xd6\xbc\xd7\xa9\xd7\x81\xd6\xb8\xd7\x9c\xd6\xb7\xd6\xb0\xd7\x9e\xd6\xb8\xd7\x94",
-        "יְרוּשָׁלְַם"
-};
-#endif
-
 class rule {
   public:
     rule(const string& precedent, const string& original, const string& succeedent, const string& replacement,
-         const string& replacement_uc,const map<string, string>& attribs = map<string,string>{})
+         const string& replacement_uc,const map<string, string>& attribs = map<string,string>{}, bool require_cantil=false)
         : m_precedent{precedent},
           m_original{original},
           m_succeedent{succeedent},
           m_replacement{replacement},
           m_replacement_uc{replacement_uc},
           m_attribs{attribs},
+          m_require_cantil{require_cantil},
           m_beforepattern{precedent + "$", pcrecpp::UTF8()},
           m_afterpattern{"^" + original + succeedent, pcrecpp::UTF8()},
           m_consumepattern{"^(" + original + ")", pcrecpp::UTF8()}
         {}
+
+    rule(const string& precedent, const string& original, const string& succeedent, const string& replacement,
+         const string& replacement_uc, bool require_cantil)
+        : rule(precedent, original, succeedent, replacement, replacement_uc, map<string,string>{}, require_cantil)
+        {}
+    
 
     string replacement(bool uc) const {
         return uc ? m_replacement_uc : m_replacement;
@@ -197,11 +188,10 @@ class rule {
         return true;
     }
 
-    bool matches(const string& before, const string& after) const {
-        return matches_end_of(before) && matches_start_of(after);
-    }
-
-    bool matches(const string& before, const string& after, const map<string, string>& input_attributes) const {
+    bool matches(const string& before, const string& after, const map<string, string>& input_attributes, bool cantil_available) const {
+        if (m_require_cantil && !cantil_available)
+            return false;
+        
         return matches_end_of(before) && matches_start_of(after) &&
             matches_attributes(input_attributes);
     }
@@ -219,12 +209,46 @@ class rule {
 
   private:
     string m_precedent, m_original, m_succeedent, m_replacement, m_replacement_uc;
+    bool m_require_cantil; // Use this rule only if cantillation marks are available
     pcrecpp::RE m_beforepattern, m_afterpattern, m_consumepattern;
     map<string, string> m_attribs;
 
 };
 
+class verbrule {
+  public:
+    verbrule(const string& original, const string& replacement1, const string& replacement2)
+        : m_original{original},
+          m_replacement1{replacement1},
+          m_replacement2{replacement2},
+          m_pattern{"^" + original, pcrecpp::UTF8()}
+        {}
+    
+    string replacement(bool dagesh) const {
+        return dagesh ? m_replacement1 : m_replacement2;
+    }
+
+    bool matches(const string& after) const {
+        return m_pattern.PartialMatch(after);
+    }
+
+    string consumes() const {
+        return m_original;
+    }
+
+    string to_string() const {
+        return m_original + " => " + m_replacement1 + "/" + m_replacement2;
+    }
+
+  private:
+    string m_original, m_replacement1, m_replacement2;
+    pcrecpp::RE m_pattern;
+};
+
+
+
 static vector<rule> rules;
+static vector<verbrule> verbrules;
 
 void initialize_translit_rules()
 {
@@ -302,6 +326,13 @@ void initialize_translit_rules()
         },
     };
 
+    vector<map<string, string>> attribvec2 {
+        {
+            // Example: Monad 256432, "JER 39,04", "רָ֠אָם", "rāʔām";
+            {"g_prs_utf8", QAMETS+FINAL_MEM},
+        },
+    };
+            
 
     // Rules for special characters:
     rules.emplace_back("", "[ 0-9()]+",  "", ORIG, ORIG);
@@ -318,6 +349,7 @@ void initialize_translit_rules()
     rules.emplace_back("",                           SHEWA, wordend,            "",                      ""                         );
     rules.emplace_back(cons,                         SHEWA, cons+SHEWA+wordend, "",                      ""                         );
     rules.emplace_back(longvow+cons+optcantils,      SHEWA, "",                 E_SUPERSCRIPT_BACKWARDS, E_SUPERSCRIPT_BACKWARDS_UC );
+    rules.emplace_back(SHEWA+cons+optcantils,        SHEWA, "",                 E_SUPERSCRIPT_BACKWARDS, E_SUPERSCRIPT_BACKWARDS_UC );
 
     for (const map<string, string>& mp : attribvec)
         rules.emplace_back(QAMETS+cons+optcantils,   SHEWA, "",                 E_SUPERSCRIPT_BACKWARDS, E_SUPERSCRIPT_BACKWARDS_UC, mp);
@@ -337,12 +369,14 @@ void initialize_translit_rules()
     rules.emplace_back("",                QAMETS+optcantils+YOD,       wordend,      A_BAR+Y_SUPERSCRIPT, A_BAR_UC+Y_SUPERSCRIPT_UC );
 
     for (const map<string, string>& mp : attribvec)
-        rules.emplace_back("",            QAMETS,                      cons+SHEWA,   A_BAR, A_BAR_UC, mp           );
-
-    rules.emplace_back(cantils+optdagesh, QAMETS,                      "",           A_BAR, A_BAR_UC               );
-    rules.emplace_back("",                QAMETS,                      cons+SHEWA,   "o",   "O"                    );
-    rules.emplace_back("",                QAMETS,                      cons+wordend, "o",   "O"                    );
-    rules.emplace_back("",                QAMETS,                      "",           A_BAR, A_BAR_UC               );
+        rules.emplace_back("",            QAMETS,                      cons+SHEWA,           A_BAR, A_BAR_UC, mp   );
+                                                                                              
+    rules.emplace_back(cantils+optdagesh, QAMETS,                      "",                   A_BAR, A_BAR_UC       );
+    rules.emplace_back("",                QAMETS,                      cons+SHEWA,           "o",   "O",      true );
+    for (const map<string, string>& mp : attribvec2)
+        rules.emplace_back("",            QAMETS,                      consNotAleph+wordend, A_BAR, A_BAR_UC, mp   );
+    rules.emplace_back("",                QAMETS,                      consNotAleph+wordend, "o",   "O",      true );
+    rules.emplace_back("",                QAMETS,                      "",                   A_BAR, A_BAR_UC       );
 
 
     // Rules for remaining vowels:
@@ -468,13 +502,54 @@ void initialize_translit_rules()
     rules.emplace_back("",                        TAV,                            "",     "t",                   "T"                   );
 }
 
+void initialize_translit_verbrules()
+{
+    // First, for the few verbs, (such as גָּבַהּ) that (erroneously?) have vowels and mapiq/dagesh in their lexeme
+    verbrules.emplace_back(QAMETS, "", "");
+    verbrules.emplace_back(PATAH,  "", "");
+    verbrules.emplace_back(DAGESH, "", ""); // Same as mapiq
+    verbrules.emplace_back(SHEWA,  "", "");
+    
+    // Second, replace all consonants with upper case Latin characters
+    verbrules.emplace_back(ALEPH,        HOOK_LEFT_UC,  HOOK_LEFT_UC );
+    verbrules.emplace_back(BET,          "B",           "V"          );
+    verbrules.emplace_back(GIMEL,        "G",           "G"          );
+    verbrules.emplace_back(DALET,        "D",           "D"          );
+    verbrules.emplace_back(HE,           "H",           "H"          );
+    verbrules.emplace_back(WAW,          "W",           "W"          );
+    verbrules.emplace_back(ZAYIN,        "Z",           "Z"          );
+    verbrules.emplace_back(HETH,         H_DOT_UC,      H_DOT_UC     );
+    verbrules.emplace_back(TET,          T_DOT_UC,      T_DOT_UC     );
+    verbrules.emplace_back(YOD,          "Y",           "Y"          );
+    verbrules.emplace_back(FINAL_KAPH,   "K",           "X"          );
+    verbrules.emplace_back(KAPH,         "K",           "X"          );
+    verbrules.emplace_back(LAMED,        "L",           "L"          );
+    verbrules.emplace_back(FINAL_MEM,    "M",           "M"          );
+    verbrules.emplace_back(MEM,          "M",           "M"          );
+    verbrules.emplace_back(FINAL_NUN,    "N",           "N"          );
+    verbrules.emplace_back(NUN,          "N",           "N"          );
+    verbrules.emplace_back(SAMEK,        "S",           "S"          );
+    verbrules.emplace_back(AYIN,         HOOK_RIGHT_UC, HOOK_RIGHT_UC);
+    verbrules.emplace_back(FINAL_PE,     "P",           "F"          );
+    verbrules.emplace_back(PE,           "P",           "F"          );
+    verbrules.emplace_back(FINAL_TSADE,  S_DOT_UC,      S_DOT_UC     );
+    verbrules.emplace_back(TSADE,        S_DOT_UC,      S_DOT_UC     );
+    verbrules.emplace_back(QOPH,         "Q",           "Q"          );
+    verbrules.emplace_back(RESH,         "R",           "R"          );
+    verbrules.emplace_back(SHIN+SHINDOT, S_CARON_UC,    S_CARON_UC   );
+    verbrules.emplace_back(SHIN+SINDOT,  S_ACUTE_UC,    S_ACUTE_UC   );
+    verbrules.emplace_back(SHIN,         "S",           "S"          );
+    verbrules.emplace_back(TAV,          "T",           "T"          );
+}
+
+
 /*
  * The actual transliteration function.
  * Pass in a morpheme, together with the text which precedes and
  * follows it, as this text may affect the transliteration.
  */
 string transliterate(string preceding_text, string input,
-                     string following_text, const map<string, string>& input_attributes, bool uc, bool do_qere_perpetuum) {
+                     string following_text, const map<string, string>& input_attributes, bool uc, bool do_qere_perpetuum, bool cantil_available) {
     // Remove puncta extraordinaria
     replace_string_in_place(input,          PUNCT_EXT_ABOVE, "");
     replace_string_in_place(input,          PUNCT_EXT_BELOW, "");
@@ -506,7 +581,7 @@ string transliterate(string preceding_text, string input,
         string consumed, result;
 
         for (rule rl : rules) {
-            if (rl.matches(before, after, input_attributes)) {
+            if (rl.matches(before, after, input_attributes, cantil_available)) {
                 // cout << "before=>" << before << "< after=>" << after << "< rl=>" << rl.to_string() << endl;
                 consumed = rl.consumes(after);
                 result = rl.replacement(uc);
@@ -537,6 +612,40 @@ string transliterate(string preceding_text, string input,
 }
 
 
+
+// Transliterate a verb.
+string transliterate_verb_lex(const string& input)
+{
+    string output;
+
+    for (string::size_type pos = 0; pos < input.length(); /* pos += consumed.length() */) {
+        string after = input.substr(pos);
+        string consumed, result;
+
+        for (verbrule rl : verbrules) {
+            if (rl.matches(after)) {
+                consumed = rl.consumes();
+                result = rl.replacement(pos==0);
+                break;
+            }
+        }
+
+        if (consumed.empty()) {
+            // nothing matched, this is probably bad!
+            // copy and consume one character and try again
+            consumed = after.substr(0, 1);
+            result = consumed;
+            cerr << "Input = " << input << endl;
+            cerr << "No verb transliteration for character '" << hex << setw(2) << (unsigned int)(unsigned char)result[0] << "'" << endl;
+        }
+
+        output += result;
+        pos += consumed.length();
+    }
+    return output;
+}
+
+
 string suffix_transliterate(const string& heb_suffix)
 {
     static map<string,string> suffixmap {
@@ -558,12 +667,40 @@ string suffix_transliterate(const string& heb_suffix)
 }
 
 #ifdef TEST_TRANSLIT
+
+// Test strings
+
+vector<string> heb {
+    "יִרְמְיָהוּ",
+    "יִשְׁרְצ֣וּ",
+    "קָ֣רָא",
+    "יִּקְרָא־",
+    "שָׂא־",
+    "נָּא־",
+    "רָ֠אָם"
+};
+
+vector<string> hebverb {
+    "ברא",
+    "בברא",
+"",
+"גָּבַהּ",
+"יָלַהּ",
+"כָּמַהּ",
+"מָהַהּ",
+"נָגַהּ",
+"תְּוַהּ",
+"תָּמַהּ",
+};
+
 int main()
 {
     initialize_translit_rules();
+    initialize_translit_verbrules();
 
     ofstream mlout{"transout.txt"};
 
+#if 0
     for (const string& h : heb) {
         map<string, string> att {
             {"g_suffix_translit"," "},
@@ -575,17 +712,31 @@ int main()
             {"ps","p3"},
             {"vt","perf"},
             {"g_word_cons_utf8",""},
-            {"lex",""},
+            {"lex",""}
         };
 
         for (unsigned char c : h)
             cout << hex << setw(2) << setfill('0') << (unsigned int)c << " ";
         cout << "\n" << dec;
         
-        string lat {transliterate("",h,"",att,false,false)};
+        string lat {transliterate("",h,"",att,false,false,true)};
 
         mlout << lat << endl;
         cout << h << "  :  " << lat << endl;
     }
+#endif
+
+#if 1
+    for (const string& h : hebverb) {
+        for (unsigned char c : h)
+            cout << hex << setw(2) << setfill('0') << (unsigned int)c << " ";
+        cout << "\n" << dec;
+        
+        string lat {transliterate_verb_lex(h)};
+
+        mlout << lat << endl;
+        cout << h << "  :  " << lat << endl;
+    }
+#endif
 }
 #endif

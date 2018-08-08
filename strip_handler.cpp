@@ -23,7 +23,9 @@ class strip_handler : public handler {
 
   private:
     string strip_cant(string text);
-    string strip_transscribed_cant(const string& text);
+    string strip_stress(string text_nocant);
+    string strip_transcribed_cant(const string& text);
+    string strip_transcribed_stress(string text_nocant);
     string strip_vowels(string text);
 };
 
@@ -88,10 +90,22 @@ string strip_handler::strip_cant(string text)
     return text;
 }
 
+// Removes meteq/siluq from strings, assuming that strip_cant() has already been called
+string strip_handler::strip_stress(string text_nocant)
+{
+    replace_string_in_place(text_nocant, "\u05db", "");  // Removing meteg/siluq
+    
+    return text_nocant;
+}
+
 // Strip cantillation marks from text, which is in the transcribed alphabet
-string strip_handler::strip_transscribed_cant(const string& text)
+string strip_handler::strip_transcribed_cant(const string& text)
 {
     // All numeric codes except 35, 75, and 95 (all of which represent a meteg) are removed from text
+    // (Strictly speaking:
+    //    75 is a siluq
+    //    95 is a meteg
+    //    35 is a meteg in a hataf segol or hataf patah)
 
     string res;  // The string to return
     string code; // The current numeric code
@@ -117,6 +131,15 @@ string strip_handler::strip_transscribed_cant(const string& text)
     return res;
 }
 
+// Removes meteq/siluq from strings in the transcribed alphabet, assuming that strip_transcribed_cant() has already been called.
+string strip_handler::strip_transcribed_stress(string text_nocant)
+{
+    replace_string_in_place(text_nocant, "35", "");  // Removing meteg in hataf segol or hataf patah
+    replace_string_in_place(text_nocant, "75", "");  // Removing siluq
+    replace_string_in_place(text_nocant, "95", "");  // Removing megeg
+
+    return text_nocant;
+}
 
 string strip_handler::strip_vowels(string text)
 {
@@ -181,10 +204,18 @@ void strip_handler::prepare_object(map<string,string>& fmap)
     fmap["g_voc_lex_cons_utf8"] = strip_vowels(strip_cant(fmap.at("g_voc_lex_utf8")));
 
     string g_word_nocant_utf8   = strip_cant(fmap.at("g_word_utf8"));
+    string g_word_nostress_utf8 = strip_stress(g_word_nocant_utf8);
+
     fmap["g_word_nocant_utf8"]  = g_word_nocant_utf8;
     fmap["g_word_cons_utf8"]    = strip_vowels(g_word_nocant_utf8);
+    fmap["g_word_nostress_utf8"]= g_word_nostress_utf8;
+    
 
-    fmap["g_word_nocant"]       = strip_transscribed_cant(fmap.at("g_word"));
+    string g_word_nocant        = strip_transcribed_cant(fmap.at("g_word"));
+    string g_word_nostress      = strip_transcribed_stress(g_word_nocant);
+
+    fmap["g_word_nocant"]       = g_word_nocant;
+    fmap["g_word_nostress"]     = g_word_nostress;
 }
 
 string strip_handler::define_features()
@@ -200,7 +231,9 @@ string strip_handler::define_features()
         "    ADD lex_cons_utf8 : string DEFAULT \"\";\n"
         "    ADD g_voc_lex_cons_utf8 : string DEFAULT \"\";\n"
         "    ADD g_word_nocant : string DEFAULT \"\";\n"
+        "    ADD g_word_nostress : string DEFAULT \"\";\n"
         "    ADD g_word_nocant_utf8 : string DEFAULT \"\";\n"
+        "    ADD g_word_nostress_utf8 : string DEFAULT \"\";\n"
         "    ADD g_word_cons_utf8 : string DEFAULT \"\";\n";
 }
 
@@ -230,6 +263,8 @@ string strip_handler::update_object(const map<string,string>& fmap)
         "    lex_cons_utf8 := \""       + fmap.at("lex_cons_utf8")       + "\";\n"
         "    g_voc_lex_cons_utf8 := \"" + fmap.at("g_voc_lex_cons_utf8") + "\";\n"
         "    g_word_nocant := \""       + fmap.at("g_word_nocant")       + "\";\n"
+        "    g_word_nostress := \""     + fmap.at("g_word_nostress")     + "\";\n"
         "    g_word_nocant_utf8 := \""  + fmap.at("g_word_nocant_utf8")  + "\";\n"
+        "    g_word_nostress_utf8 := \""+ fmap.at("g_word_nostress_utf8")+ "\";\n"
         "    g_word_cons_utf8 := \""    + fmap.at("g_word_cons_utf8")    + "\";\n";
 }
