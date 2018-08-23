@@ -79,7 +79,7 @@ namespace {
 
     // Regular expressions
     const string vowels       = "([\u05b4-\u05bb]|("+WAW+DAGESH+"))";
-    const string longvow      = "(["+TSERE+HOLAM+"]|("+WAW+DAGESH+"))";
+    const string longvow      = "(["+TSERE+HOLAM+"])";
     const string consND       = "[\u05d0-\u05ea]["+SHINDOT+SINDOT+"]?";
     const string optdagesh    = DAGESH+"?";
     const string optrafe      = RAFE+"?";
@@ -726,7 +726,7 @@ int main()
     }
 #endif
 
-#if 1
+#if 0
     for (const string& h : hebverb) {
         for (unsigned char c : h)
             cout << hex << setw(2) << setfill('0') << (unsigned int)c << " ";
@@ -737,6 +737,14 @@ int main()
         mlout << lat << endl;
         cout << h << "  :  " << lat << endl;
     }
+#endif
+
+#if 1
+    string h = "רְב֗וּ";
+    string pref = "וּ";
+    
+    string lat {transliterate(pref,h,"",map<string, string>{},false,false,true)};
+    cout << lat << "\n";
 #endif
 }
 #endif
