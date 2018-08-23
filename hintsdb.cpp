@@ -13,6 +13,7 @@
 #include "csv-parser-master/csv.hh"
 
 #include "emdros_iterators.hpp"
+#include "util.hpp"
 
 using namespace std;
 
@@ -170,6 +171,14 @@ class selector {
 };
  
 
+string fix_g_word_nocant(string text_nocant)
+{
+    replace_string_in_place(text_nocant, "25", "");  // Removing meteg
+    replace_string_in_place(text_nocant, "45", "");  // Removing meteg
+
+    return text_nocant;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -223,7 +232,7 @@ int main(int argc, char **argv)
         
         for (const MatchedObject mo : str) {
             self = mo.getFeatureAsLong(0);
-            g_word_nocant = mo.getFeatureAsString(1);
+            g_word_nocant = fix_g_word_nocant(mo.getFeatureAsString(1));
             for (int i=0; i<8; ++i) {
                 features[i] = mo.getFeatureAsString(2+i);
                 if (i>=5 && features[i]=="absent")
