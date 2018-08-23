@@ -6,7 +6,7 @@ verb_stem_handler.o verb_class.o verb_class_handler.o strip_handler.o \
 translit_handler.o suffix_handler.o hebrew_transliterator.o util.o
 
 OBJFILES2=worddb.o emdros_iterators.o
-OBJFILES3=hintsdb.o emdros_iterators.o csv.o
+OBJFILES3=hintsdb.o emdros_iterators.o util.o csv.o
 
 DEPFILES=$(OBJFILES:.o=.d) $(OBJFILES2:.o=.d) $(OBJFILES3:.o=.d)
 

@@ -93,7 +93,7 @@ string strip_handler::strip_cant(string text)
 // Removes meteq/siluq from strings, assuming that strip_cant() has already been called
 string strip_handler::strip_stress(string text_nocant)
 {
-    replace_string_in_place(text_nocant, "\u05db", "");  // Removing meteg/siluq
+    replace_string_in_place(text_nocant, "\u05bd", "");  // Removing meteg/siluq
     
     return text_nocant;
 }
@@ -101,12 +101,12 @@ string strip_handler::strip_stress(string text_nocant)
 // Strip cantillation marks from text, which is in the transcribed alphabet
 string strip_handler::strip_transcribed_cant(const string& text)
 {
-    // All numeric codes except 35, 75, and 95 (all of which represent a meteg) are removed from text
+    // All numeric codes except 25, 35, 45, 75, and 95 (all of which represent a meteg) are removed from text
     // (Strictly speaking:
     //    75 is a siluq
-    //    95 is a meteg
+    //    25, 45, 95 are various forms of meteg
     //    35 is a meteg in a hataf segol or hataf patah)
-
+    
     string res;  // The string to return
     string code; // The current numeric code
     
@@ -119,7 +119,7 @@ string strip_handler::strip_transcribed_cant(const string& text)
                 return "";
             }
             code += c;
-            if (code=="35" || code=="75" || code=="95")
+            if (code=="25" || code=="35" || code=="45" || code=="75" || code=="95")
                 res += code;
             code = "";
         }
@@ -134,9 +134,11 @@ string strip_handler::strip_transcribed_cant(const string& text)
 // Removes meteq/siluq from strings in the transcribed alphabet, assuming that strip_transcribed_cant() has already been called.
 string strip_handler::strip_transcribed_stress(string text_nocant)
 {
+    replace_string_in_place(text_nocant, "25", "");  // Removing meteg
     replace_string_in_place(text_nocant, "35", "");  // Removing meteg in hataf segol or hataf patah
+    replace_string_in_place(text_nocant, "45", "");  // Removing meteg
     replace_string_in_place(text_nocant, "75", "");  // Removing siluq
-    replace_string_in_place(text_nocant, "95", "");  // Removing megeg
+    replace_string_in_place(text_nocant, "95", "");  // Removing meteg
 
     return text_nocant;
 }
