@@ -1,8 +1,9 @@
-// Copyright © 2017 Oliver Glanz.
+// Copyright © 2018 Oliver Glanz.
 // Released under an MIT license.
 
 select all objects where
 [word FOCUS sp IN (verb)
+  AND  vt=impf
   AND  vbe = "H="
   AND  ps=p1
 ]

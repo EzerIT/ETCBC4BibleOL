@@ -188,7 +188,7 @@ int main(int argc, char **argv)
     }
 
     read_csv_t csv;
-    string csvfile{"BibleOL_verbal-ambiguity-project_v1.24.csv"};
+    string csvfile{"BibleOL_verbal-ambiguity-project_v1.30.csv"};
     
     if (csv.open(csvfile) < 0) {
         cout << "Cannot open file " << csvfile << "\n";
