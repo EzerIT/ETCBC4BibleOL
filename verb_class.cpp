@@ -58,7 +58,7 @@ static map<string, set<string>> verb_classes;
 
 
 void build_newgloss() {
-    ifstream lexfile{"ETCBC4-frequency3.01_progression.csv"};
+    ifstream lexfile{"ETCBC4-frequency3.52_progression.csv"};
     string buf;
 
     RE entry{"((\"([^\"]+)\")|([^\",]*)),"}; // Relies on a final comma
@@ -95,7 +95,7 @@ void build_newgloss() {
                 v.push_back(unquoted);
         }
 
-        if (v.size()!=F_MAX) {
+        if (v.size()>F_MAX) {
             cerr << "ERROR: CSV file contains a line with " << v.size() << " fields\n";
             exit(1);
         }
