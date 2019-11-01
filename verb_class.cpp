@@ -58,7 +58,7 @@ static map<string, set<string>> verb_classes;
 
 
 void build_newgloss() {
-    ifstream lexfile{"ETCBC4-frequency3.52_progression.csv"};
+    ifstream lexfile{"ETCBC4-frequency3.53_progression.csv"};
     string buf;
 
     RE entry{"((\"([^\"]+)\")|([^\",]*)),"}; // Relies on a final comma

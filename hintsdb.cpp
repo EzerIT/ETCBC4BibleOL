@@ -62,7 +62,9 @@ class selector {
             if (alldiff(at(r,col1), at(r,col2)))
                 return feat_diff2string.at(i) + "=" + at(r,col1);
         }
-        cerr << "INDETERMINATE\n";
+        for (auto rc : r)
+            cerr << rc << " ";
+        cerr << "INDETERMINATE 1\n";
     }
 
     static string diff3(const vector<string>&r) {
@@ -74,7 +76,9 @@ class selector {
             if (alldiff(at(r,col1), at(r,col2), at(r,col3)))
                 return feat_diff2string.at(i) + "=" + at(r,col1);
         }
-        cerr << "INDETERMINATE\n";
+        for (auto rc : r)
+            cerr << rc << " ";
+        cerr << "INDETERMINATE 2\n";
     }
 
     static string diff4(const vector<string>&r) {
@@ -142,7 +146,9 @@ class selector {
             }
         }
 
-        cerr << "INDETERMINATE\n";
+        for (auto rc : r)
+            cerr << rc << " ";
+        cerr << "INDETERMINATE 3\n";
     }
 
   private:
@@ -188,7 +194,7 @@ int main(int argc, char **argv)
     }
 
     read_csv_t csv;
-    string csvfile{"BibleOL_verbal-ambiguity-project_v1.41.csv"};
+    string csvfile{"BibleOL_verbal-ambiguity-project_v1.43.csv"};
     
     if (csv.open(csvfile) < 0) {
         cout << "Cannot open file " << csvfile << "\n";
