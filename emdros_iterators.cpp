@@ -1,4 +1,4 @@
-/* Copyright © 2017 Ezer IT Consulting.
+/* Copyright © 2022 Claus Tøndering.
  * Released under an MIT License.
  */
  
@@ -28,6 +28,8 @@ StrawOk::const_iterator& StrawOk::const_iterator::operator++()
     }
     else
         m_end = true;
+
+    return *this;
 }
 
 
@@ -82,6 +84,8 @@ SheafOk::const_iterator& SheafOk::const_iterator::operator++()
     }
     else
         m_end = true;
+
+    return *this;
 }
 
 const StrawOk SheafOk::const_iterator::operator*()

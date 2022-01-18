@@ -1,4 +1,4 @@
-/* Copyright © 2018 Ezer IT Consulting.
+/* Copyright © 2022 Claus Tøndering.
  * Released under an MIT License.
  */
  
@@ -65,6 +65,7 @@ class selector {
         for (auto rc : r)
             cerr << rc << " ";
         cerr << "INDETERMINATE 1\n";
+        return "INDETERMINATE 1";
     }
 
     static string diff3(const vector<string>&r) {
@@ -79,6 +80,7 @@ class selector {
         for (auto rc : r)
             cerr << rc << " ";
         cerr << "INDETERMINATE 2\n";
+        return "INDETERMINATE 2";
     }
 
     static string diff4(const vector<string>&r) {
@@ -149,6 +151,7 @@ class selector {
         for (auto rc : r)
             cerr << rc << " ";
         cerr << "INDETERMINATE 3\n";
+        return "INDETERMINATE 3";
     }
 
   private:

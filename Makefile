@@ -1,4 +1,4 @@
-# Copyright © 2018 Ezer IT Consulting.
+# Copyright © 2022 Claus Tøndering.
 # Released under an MIT License.
 
 OBJFILES=emdros_iterators.o emdros_updater.o frequency_handler.o \
@@ -14,7 +14,7 @@ CXX=g++
 
 CXXFLAGS=-std=c++17 -MMD -O3 -I /usr/local/include
 LDLIBS= -L /usr/local/lib 
-LDFLAGS= -lpcrecpp -lmql -lemdf
+LDFLAGS= -lpcrecpp -lemdros_amalgamation -lpthread -ldl
 
 BHS4=../bhs4/bhs4  # Location of source Emdros database
 
