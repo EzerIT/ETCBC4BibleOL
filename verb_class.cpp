@@ -17,7 +17,7 @@ using namespace std;
 using pcrecpp::RE;
 using pcrecpp::StringPiece;
 
-static map<string, set<string>> verb_classes;
+static map<string, set<string>> verb_classes_heb, verb_classes_aram;
 
 // Fields in the csv file:
 #define F_SECTION              0    //  Section
@@ -26,41 +26,53 @@ static map<string, set<string>> verb_classes;
 #define F_ABS_ORDER            3    //  absolut alphabetic order
 #define F_LEXEME_IN_LEX        4    //  Lexeme in lexicon
 #define F_VOC_LEXEME           5    //  Vocalized lexeme
-#define F_VC1                  6    //   verbal class 1st cons
-#define F_VC2                  7    //   verbal class 2nd cons
-#define F_VC3                  8    //   verbal class 3rd cons
-#define F_VCO                  9    //   verbal class other
-#define F_PART_OF_SPEECH      10    //  Part of speech
-#define F_STEM                11    //  Verbal stems
-#define F_CUR_GLOSS           12    //  Current glosses
-#define F_VOC_LEX_MIT_P       14    //  Vocalized lexeme as in Mitchel (print edition)
-#define F_VOC_LEX_MIT_L       15    //  Vocalized lexeme as in Mitchel (Logos version)
-#define F_MIT_SEC             16    //  Mitchel Section
-#define F_RATIONALE           17    //  Rational for change
-#define F_MIT_NON_VERB_GLOSS  18    //  Mitchel non-verb gloss
-#define F_NEW_GLOSS           20    //    New glosses (verbs:prioritized displayed meaning of verbs) without excel formula (ready for export)
-#define F_NEW_GLOSS_EXCEL     22    //    New glosses (verbs:prioritized displayed meaning of verbs) with excel formula
-#define F_MEANING_FIXED       24    //  meaning fixed
-#define F_QAL                 25    //  Qal=1
-#define F_NIFAL               27    //  Nifal=2
-#define F_PIEL                29    //  Piel=3
-#define F_PUAL                31    //  Pual=4
-#define F_HITPAEL             33    //  Hitpael=5
-#define F_HIFIL               35    //  Hifil=6
-#define F_HOFAL               37    //  Hofal=7
-#define F_HISHTAFAL           39    //  Hishtafal=8
-#define F_PAS_QAL             41    //  Passive qal
-#define F_HOTPAAL             43    //  Hotpaal
-#define F_ETPAAL              44    //  Etpaal
-#define F_NITPAEL             45    //  Nitpael
-#define F_TIFAL               46    //   Tifal
-#define F_MAX                 47
+#define F_VC1                  6    //  Verbal class 1st cons
+#define F_VC2                  7    //  Verbal class 2nd cons
+#define F_VC3                  8    //  Verbal class 3rd cons
+#define F_VCO                  9    //  Verbal class other
+#define F_LIST_FORMULA        10    //  Verbal class list with formula
+#define F_LIST_NO_FORMULA     11    //  Verbal class list without formula
+#define F_PART_OF_SPEECH      12    //  Part of speech
+#define F_STEM                13    //  Verbal stems
+#define F_CUR_GLOSS           14    //  Current glosses
+#define F_VOC_LEX_MIT_P       15    //  Vocalized lexeme as in Mitchel (print edition)
+#define F_VOC_LEX_MIT_L       16    //  Vocalized lexeme as in Mitchel (Logos version)
+#define F_MIT_SEC             17    //  Mitchel Section
+#define F_RATIONALE           18    //  Rational for change
+#define F_MIT_NON_VERB_GLOSS  19    //  Mitchel non-verb gloss
+#define F_NEW_GLOSS           20    //  New glosses (verbs:prioritized displayed meaning of verbs) without excel formula (ready for export)
+#define F_NEW_GLOSS_EXCEL     21    //  New glosses (verbs:prioritized displayed meaning of verbs) with excel formula
+#define F_MEANING_FIXED       22    //  meaning fixed
+#define F_QAL                 23    //  Qal=1
+#define F_NIFAL               24    //  Nifal=2
+#define F_PIEL                25    //  Piel=3
+#define F_PUAL                26    //  Pual=4
+#define F_HITPAEL             27    //  Hitpael=5
+#define F_HIFIL               28    //  Hifil=6
+#define F_HOFAL               29    //  Hofal=7
+#define F_HISHTAFAL           30    //  Hishtafal=8
+#define F_PAS_QAL             31    //  Passive qal=9
+#define F_ETPAAL              32    //  Etpaal=10
+#define F_NITPAEL             33    //  Nitpael=11
+#define F_HOTPAAL             34    //  Hotpaal=12
+#define F_TIFAL               35    //  Tifal=13
+#define F_HITPOAL             36    //  Hitpoal=14
+#define F_POAL                37    //  Poal=15
+#define F_POEL                38    //  Poel=16
+#define F_MAX                 39
 
 
-void build_newgloss() {
-    ifstream lexfile{"ETCBC4-frequency3.53_progression.csv"};
+// is_hebrew is true for Hebrew and false for Aramaic
+void build_newgloss(bool is_hebrew) {
+    string lexfilename{is_hebrew ? "ETCBC4-frequency4.02_progression-heb.csv" : "ETCBC4-frequency4.02_progression-aram.csv"};
+    ifstream lexfile{lexfilename};
     string buf;
 
+    if (!lexfile) {
+        cerr << "ERROR: Cannot open " << lexfilename << "\n";
+        exit(1);
+    }
+    
     RE entry{"((\"([^\"]+)\")|([^\",]*)),"}; // Relies on a final comma
     
     string x1,x2;
@@ -114,25 +126,33 @@ void build_newgloss() {
             if (!v[F_VCO].empty())
                 s.insert(v[F_VCO]);
 
-            verb_classes[v[F_LEXEME_IN_LEX]] = move(s);
+            if (is_hebrew)
+                verb_classes_heb[v[F_LEXEME_IN_LEX]] = move(s);
+            else
+                verb_classes_aram[v[F_LEXEME_IN_LEX]] = move(s);
         }
     }
 }
 
-set<string>& verbclasses_lookup(const string &lex)
+set<string>& verbclasses_lookup(bool is_hebrew, const string &lex)
 {
-    string lex2;
+    if (is_hebrew) {
+        string lex2;
 
-    // Fix for newly added lexemes
-    if (lex=="XWH=[")
-        lex2 = "XWH[";
-    else if (lex=="XJL==[")
-        lex2 = "XJL[";
-    else
-        lex2 = lex;
+        // Fix for newly added lexemes
+        if (lex=="XWH=[")
+            lex2 = "XWH[";
+        else if (lex=="XJL==[")
+            lex2 = "XJL[";
+        else
+            lex2 = lex;
 
-    //cout << "LEX2 " << lex2 << endl;
-    assert(verb_classes.count(lex2)>0);
-    return verb_classes[lex2];
+        assert(verb_classes_heb.count(lex2)>0);
+        return verb_classes_heb[lex2];
+    }
+    else {
+        assert(verb_classes_aram.count(lex)>0);
+        return verb_classes_aram[lex];
+    }
 }
 

@@ -11,3 +11,6 @@ ETCBC4
 hintsdb
 hintsdb.sql
 ETCBC4_hints.db
+build_aram_lex_file
+aram_en.csv
+obsolete

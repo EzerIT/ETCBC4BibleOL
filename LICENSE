@@ -11,12 +11,12 @@ The file
 is Copyright (c) 2018 by Nicolai Winther-Nielsen and Ezer IT Consulting.
 
 The files in the directory
-   csv-parser-master
-are Copyright (c) 2017 by Pedro Vicente, and licensed as described in the LICENSE
+   rapidcsv
+are Copyright (C) 2017-2021 by Kristofer Berggren, and licensed as described in the LICENSE
 file of that directory.
 
 The remaining files are
-Copyright (c) 2018 by Ezer IT Consulting.
+Copyright (c) 2022 by Claus Tøndering.
 
 
 Except as noted above, the files are licensed under these terms:

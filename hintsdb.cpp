@@ -196,15 +196,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    read_csv_t csv;
-    string csvfile{"BibleOL_verbal-ambiguity-project_v1.43.csv"};
-    
-    if (csv.open(csvfile) < 0) {
-        cout << "Cannot open file " << csvfile << "\n";
-        return 1;
-    }
-    csv.read_row(); // Read header
-
     ofstream sqlfile{argv[2]};
     sqlfile << "CREATE TABLE hints (self integer primary key, hint text);\n";
     sqlfile << "BEGIN TRANSACTION;\n";
@@ -220,68 +211,80 @@ int main(int argc, char **argv)
 
     bool bResult{false};
 
-    string mql_request{"SELECT ALL OBJECTS WHERE [word sp=verb AND language=Hebrew GET self,g_word_nocant,"
+
+    for (const string& lang : { "Hebrew", "Aramaic" }) {
+        read_csv_t csv;
+        
+        string csvfile{lang=="Hebrew"
+            ? "BibleOL_verbal-ambiguity-project_v1.43-heb.csv"
+            : "BibleOL_verbal-ambiguity-project_v1.43-aram.csv"};
+    
+        if (csv.open(csvfile) < 0) {
+            cout << "Cannot open file " << csvfile << "\n";
+            return 1;
+        }
+        csv.read_row(); // Read header
+
+        string mql_request{"SELECT ALL OBJECTS WHERE [word sp=verb AND language=" + lang + " GET self,g_word_nocant,"
             "ps,nu,gn,vt,vs,suffix_person,suffix_number,suffix_gender] GO"};
     
-    if (!EE.executeString(mql_request, bResult, false, true))
-        return 1;
+        if (!EE.executeString(mql_request, bResult, false, true))
+            return 1;
 
-    if (!EE.isSheaf()) {
-        cerr << "ERROR: Result is not sheaf\n";
-        return 1;
-    }
+        if (!EE.isSheaf()) {
+            cerr << "ERROR: Result is not sheaf\n";
+            return 1;
+        }
 
-
-    map<int, map<string, string>> feature_maps; // Maps id_d to feature=>value map
-
-    for (StrawOk str : SheafOk{EE.getSheaf()}) {
-        long self = 0;
-        string g_word_nocant;
-        string features[8]; //ps,nu,gn,vt,vs,suffix_person,suffix_number,suffix_gender
+        for (StrawOk str : SheafOk{EE.getSheaf()}) {
+            long self = 0;
+            string g_word_nocant;
+            string features[8]; //ps,nu,gn,vt,vs,suffix_person,suffix_number,suffix_gender
         
-        for (const MatchedObject mo : str) {
-            self = mo.getFeatureAsLong(0);
-            g_word_nocant = fix_g_word_nocant(mo.getFeatureAsString(1));
+            for (const MatchedObject mo : str) {
+                self = mo.getFeatureAsLong(0);
+                g_word_nocant = fix_g_word_nocant(mo.getFeatureAsString(1));
+                for (int i=0; i<8; ++i) {
+                    features[i] = mo.getFeatureAsString(2+i);
+                    if (i>=5 && features[i]=="absent")
+                        features[i]="unknown";
+                }
+            }
+
+            vector<string> row = csv.read_row();
+            if (row.size()==0) {
+                cerr << "Unexpected EOF in spreadsheet\n";
+                return 1;
+            }
+        
+            if (g_word_nocant != at(row,cols::g_word_nocant)) {
+                cerr << "Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << '\n'
+                     << "Spreadsheet has " << at(row,cols::g_word_nocant)
+                     << " Emdros has " << g_word_nocant << '\n';
+                return 1;
+            }
+
             for (int i=0; i<8; ++i) {
-                features[i] = mo.getFeatureAsString(2+i);
-                if (i>=5 && features[i]=="absent")
-                    features[i]="unknown";
-            }
-        }
-
-        vector<string> row = csv.read_row();
-        if (row.size()==0) {
-            cerr << "Unexpected EOF in spreadsheet\n";
-            return 1;
-        }
-        
-        if (g_word_nocant != at(row,cols::g_word_nocant)) {
-            cerr << "Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << '\n'
-                 << "Spreadsheet has " << at(row,cols::g_word_nocant)
-                 << " Emdros has " << g_word_nocant << '\n';
-            return 1;
-        }
-
-        for (int i=0; i<8; ++i) {
-            if (features[i] != at(row,int(cols::ps1) + i)) {
-                cerr << "Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << " word is " << g_word_nocant << '\n'
-                     << "Spreadsheet has feature " << i << "=" << at(row,int(cols::ps1)+i)
-                     << " Emdros has " << features[i] << '\n';
+                if (features[i] != at(row,int(cols::ps1) + i)) {
+                    cerr << "Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << " word is " << g_word_nocant << '\n'
+                         << "Spreadsheet has feature " << i << "=" << at(row,int(cols::ps1)+i)
+                         << " Emdros has " << features[i] << '\n';
 //                return 1;
+                }
             }
-        }
 
 
-        switch (count_var(row)) {
-          case 4:
-                sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff4(row) << "');\n";
-                break;
-          case 3:
-                sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff3(row) << "');\n";
-                break;
-          case 2:
-                sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff2(row) << "');\n";
-                break;
+            switch (count_var(row)) {
+              case 4:
+                    sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff4(row) << "');\n";
+                    break;
+              case 3:
+                    sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff3(row) << "');\n";
+                    break;
+              case 2:
+                    sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff2(row) << "');\n";
+                    break;
+            }
         }
     }
     

@@ -8,9 +8,9 @@
 #include <string>
 #include <set>
 
-void build_newgloss();
+void build_newgloss(bool is_hebrew);
 
-std::set<std::string>& verbclasses_lookup(const std::string &lex);
+std::set<std::string>& verbclasses_lookup(bool is_hebrew, const std::string &lex);
 
 #endif // VERB_CLASS_HPP
 

@@ -21,8 +21,7 @@ class verb_class_handler : public handler {
 
   private:
     string normalize(const string& verb);
-    string classify_aramaic(const string& verb);
-    string classify_hebrew(const string& verb);
+    string classify(bool is_hebrew, const string& verb);
 };
 
 shared_ptr<handler> make_verb_class_handler()
@@ -33,7 +32,8 @@ shared_ptr<handler> make_verb_class_handler()
 
 void verb_class_handler::list_features(set<string>& req)
 {
-    build_newgloss();
+    build_newgloss(true);  // Hebrew
+    build_newgloss(false); // Aramaic
     req.insert({"lex","sp","language"});
 }
 
@@ -50,15 +50,13 @@ string verb_class_handler::pre_create()
         "    iii_aleph,\n"
         "    iii_he,\n"
         "    i_nun,\n"
-        "    analog_i_nun,\n"
         "    i_waw,\n"
-        "    analog_i_waw,\n"
         "    i_yod,\n"
+        "    i_waw_yod,\n"
         "    ii_waw,\n"
         "    ii_yod,\n"
         "    four_consonants,\n"
-        "    geminate,\n"
-        "    hjh_xjh\n"
+        "    geminate\n"
         "} GO\n";
 }
 
@@ -91,122 +89,12 @@ string verb_class_handler::normalize(const string& verb)
 }
 
 
-string verb_class_handler::classify_aramaic(const string& verb)
-{
-    string norm = normalize(verb);
-    string attr;
-    bool is_pjod = false;
 
-    if (norm.length() == 3) {
-        if (norm==">MR") {
-            if (verb==">MR=[")
-                attr += ",i_guttural";
-            else if (verb==">MR[")
-                attr += ",i_aleph";
-            else
-                cerr << "Verb " << verb << " is not recognized\n";
-        }
-        else if (norm==">KL" ||
-                 norm==">BD") {
-            attr += ",i_aleph";
-
-        }
-        else if (norm==">BH" ||
-                 norm==">PH") {
-            attr += ",i_aleph,iii_he";
-        }
-        else if (norm=="HJH" ||
-                 norm=="XJH") {
-            attr += ",iii_he,i_guttural";
-        }
-        else {
-            if (norm[0]=='N') {
-                attr += ",i_nun";
-            }
-            if (norm[0]=='J') {
-                if (norm=="JVB" ||
-                    norm=="JLL" ||
-                    norm=="JMN" ||
-                    norm=="JNQ" ||
-                    norm=="JQY" ||
-                    norm=="JBC" ||
-                    norm=="JCR") {
-                    attr += ",i_yod";
-                    is_pjod = true;
-                }
-                else if (norm=="JCN") {
-                    if (verb=="JCN=[")
-                        attr += ",i_waw";
-                    else if (verb=="JCN[") {
-                        attr += ",i_yod";
-                        is_pjod = true;
-                    }
-                    else
-                        cerr << "Verb " << verb << " is not recognized\n";
-                }
-                else {
-                    attr += ",i_waw";
-                }
-            }
-
-            if (norm=="HLK") {
-                attr += ",i_waw";
-            }
-
-            if (norm[1]=='J' && norm[2]!='H') {
-                attr += ",ii_yod";
-            }
-
-            if (norm[1]=='W' && norm[2]!='H') {
-                attr += ",ii_waw";
-            }
-
-            if (norm[1]==norm[2] && !is_pjod) {
-                attr += ",geminate";
-            }
-
-            if (norm[2]=='>') {
-                attr += ",iii_aleph";
-            }
-
-            if (norm[2]=='H') {
-                attr += ",iii_he";
-            }
-
-            if (norm[0]=='>' ||
-                norm[0]=='<' ||
-                norm[0]=='R' ||
-                norm[0]=='H' ||
-                norm[0]=='X') {
-                attr += ",i_guttural";
-            }
-
-            if (norm[1]=='>' ||
-                norm[1]=='<' ||
-                norm[1]=='R' ||
-                norm[1]=='H' ||
-                norm[1]=='X') {
-                attr += ",ii_guttural";
-            }
-
-            if (norm[2]=='<' ||
-                norm[2]=='R' ||
-                norm[2]=='X') {
-                attr += ",iii_guttural";
-            }
-        }
-    }
-    else {
-        attr += ",four_consonants";
-    }
-    return attr.length()>0 ? attr.substr(1) : "regular";
-}
-
-string verb_class_handler::classify_hebrew(const string& verb)
+string verb_class_handler::classify(bool is_hebrew, const string& verb)
 {
     assert(verb.substr(verb.length()-1)=="[");
 
-    set<string> vc = verbclasses_lookup(verb);
+    set<string> vc = verbclasses_lookup(is_hebrew,verb);
 
     string attr;
 
@@ -218,6 +106,7 @@ string verb_class_handler::classify_hebrew(const string& verb)
         else if (x=="i-nun")        attr += ",i_nun";
         else if (x=="i-waw")        attr += ",i_waw";
         else if (x=="i-yod")        attr += ",i_yod";
+        else if (x=="i-waw/yod")    attr += ",i_waw_yod";
         else if (x=="ii-guttural")  attr += ",ii_guttural";
         else if (x=="ii-waw")       attr += ",ii_waw";
         else if (x=="ii-yod")       attr += ",ii_yod";
@@ -235,8 +124,5 @@ string verb_class_handler::update_object(const map<string,string>& fmap)
     if (fmap.at("sp")!="verb")
         return "";
 
-    if (fmap.at("language")=="Aramaic")
-        return "    verb_class := (" + classify_aramaic(fmap.at("lex")) + ");\n";
-    else
-        return "    verb_class := (" + classify_hebrew(fmap.at("lex")) + ");\n";
+    return "    verb_class := (" + classify(fmap.at("language")=="Hebrew",fmap.at("lex")) + ");\n";
 }
