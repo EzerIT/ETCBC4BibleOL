@@ -5,17 +5,15 @@
 #include <cassert>
 #include <map>
 #include <vector>
-#include <pcrecpp.h>
 #include <iostream>
 #include <fstream>
 #include <set>
 
 #include "verb_class.hpp"
 #include "util.hpp"
+#include "rapidcsv/src/rapidcsv.h"
 
 using namespace std;
-using pcrecpp::RE;
-using pcrecpp::StringPiece;
 
 static map<string, set<string>> verb_classes_heb, verb_classes_aram;
 
@@ -65,52 +63,20 @@ static map<string, set<string>> verb_classes_heb, verb_classes_aram;
 // is_hebrew is true for Hebrew and false for Aramaic
 void build_newgloss(bool is_hebrew) {
     string lexfilename{is_hebrew ? "ETCBC4-frequency4.02_progression-heb.csv" : "ETCBC4-frequency4.02_progression-aram.csv"};
-    ifstream lexfile{lexfilename};
-    string buf;
 
-    if (!lexfile) {
-        cerr << "ERROR: Cannot open " << lexfilename << "\n";
+    rapidcsv::Document lexfile;
+
+    try {
+        lexfile.Load(lexfilename);
+    }
+    catch (const ios_base::failure& e) {
+        cerr << e.what() << "\n";
+        cerr << "Cannot open " << lexfilename << "\n";
         exit(1);
     }
-    
-    RE entry{"((\"([^\"]+)\")|([^\",]*)),"}; // Relies on a final comma
-    
-    string x1,x2;
-    string quoted;
-    string unquoted;
 
-    // Skip header lines
-    getline(lexfile,buf);
-
-    int cnt = 1;
-
-
-    while (getline(lexfile,buf)) {
-        ++cnt;
-        buf += ",";  // Regex relies on a final comma
-        replace_string_in_place(buf, "\"\"", "¤");   // "" => ¤
-
-        StringPiece haystack{buf};
-
-        string ignore1,ignore2;
-        string quoted;
-        string unquoted;
-
-        vector<string> v;
-
-        while (entry.Consume(&haystack, &ignore1, &ignore2, &quoted, &unquoted)) {
-            if (!quoted.empty()) {
-                replace_string_in_place(quoted, "¤", "\\\"");  // Extra \ needed when writing to MQL file
-                v.push_back(quoted);
-            }
-            else
-                v.push_back(unquoted);
-        }
-
-        if (v.size()>F_MAX) {
-            cerr << "ERROR: CSV file contains a line with " << v.size() << " fields\n";
-            exit(1);
-        }
+    for (size_t rix=0; rix<lexfile.GetRowCount(); ++rix) {
+        vector<string> v = lexfile.GetRow<string>(rix);
 
         {
             set<string> s;

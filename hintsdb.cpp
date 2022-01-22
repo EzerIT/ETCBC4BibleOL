@@ -10,7 +10,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "csv-parser-master/csv.hh"
+#include "rapidcsv/src/rapidcsv.h"
 
 #include "emdros_iterators.hpp"
 #include "util.hpp"
@@ -211,19 +211,22 @@ int main(int argc, char **argv)
 
     bool bResult{false};
 
-
     for (const string& lang : { "Hebrew", "Aramaic" }) {
-        read_csv_t csv;
+        rapidcsv::Document csv;
+        int csv_row = 0;
         
         string csvfile{lang=="Hebrew"
-            ? "BibleOL_verbal-ambiguity-project_v1.43-heb.csv"
-            : "BibleOL_verbal-ambiguity-project_v1.43-aram.csv"};
-    
-        if (csv.open(csvfile) < 0) {
-            cout << "Cannot open file " << csvfile << "\n";
+            ? "BibleOL_verbal-ambiguity-project_v1.43b-heb.csv"
+            : "BibleOL_verbal-ambiguity-project_v1.43b-aram.csv"};
+
+        try {
+            csv.Load(csvfile);
+        }
+        catch (const ios_base::failure& e) {
+            cerr << e.what() << "\n";
+            cerr << "Cannot open " << csvfile << "\n";
             return 1;
         }
-        csv.read_row(); // Read header
 
         string mql_request{"SELECT ALL OBJECTS WHERE [word sp=verb AND language=" + lang + " GET self,g_word_nocant,"
             "ps,nu,gn,vt,vs,suffix_person,suffix_number,suffix_gender] GO"};
@@ -251,11 +254,7 @@ int main(int argc, char **argv)
                 }
             }
 
-            vector<string> row = csv.read_row();
-            if (row.size()==0) {
-                cerr << "Unexpected EOF in spreadsheet\n";
-                return 1;
-            }
+            vector<string> row = csv.GetRow<string>(csv_row++);
         
             if (g_word_nocant != at(row,cols::g_word_nocant)) {
                 cerr << "Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << '\n'
