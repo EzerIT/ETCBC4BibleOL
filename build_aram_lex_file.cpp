@@ -71,6 +71,7 @@ using namespace std;
 
 constexpr int MAX_OUT_FIELD = 17;
 
+// For verbs:
 map<int,int> output2input = { {  1,  4 },   // lex
                               {  5, 23 },   // Peal     
                               {  6, 25 },   // Peil     
@@ -110,12 +111,18 @@ int main()
         // Convert each line
         for (size_t rix=0; rix<csvfile.GetRowCount(); ++rix) {
             vector<string> row = csvfile.GetRow<string>(rix);
-        
-            for (int cix=0; cix<MAX_OUT_FIELD; ++cix)
-                if (output2input.count(cix)>0) {
-                    string s = row[output2input[cix]];
-                    outfile.SetCell<string>(cix, rix, s.empty() ? "" : '"' + row[output2input[cix]] + '"');
-                }
+
+            if (row[12]=="verb") {
+                for (int cix=0; cix<MAX_OUT_FIELD; ++cix)
+                    if (output2input.count(cix)>0) {
+                        string s = row[output2input[cix]];
+                        outfile.SetCell<string>(cix, rix, s.empty() ? "" : '"' + row[output2input[cix]] + '"');
+                    }
+            }
+            else { // Not a verb
+                outfile.SetCell<string>(1, rix, '"' + row[4] + '"');
+                outfile.SetCell<string>(4, rix, '"' + (row[19].empty() ? row[14] : row[19]) + '"');
+            }
         }
         
         try {
