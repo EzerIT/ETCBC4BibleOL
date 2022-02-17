@@ -50,13 +50,16 @@ string verb_class_handler::pre_create()
         "    iii_aleph,\n"
         "    iii_he,\n"
         "    i_nun,\n"
+        "    analog_i_nun,\n"
         "    i_waw,\n"
+        "    analog_i_waw,\n"
         "    i_yod,\n"
         "    i_waw_yod,\n"
         "    ii_waw,\n"
         "    ii_yod,\n"
         "    four_consonants,\n"
-        "    geminate\n"
+        "    geminate,\n"
+        "    hjh_xjh\n"
         "} GO\n";
 }
 
