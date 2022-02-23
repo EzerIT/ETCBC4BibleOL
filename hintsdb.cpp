@@ -216,8 +216,8 @@ int main(int argc, char **argv)
         int csv_row = 0;
         
         string csvfile{lang=="Hebrew"
-            ? "BibleOL_verbal-ambiguity-project_v1.43b-heb.csv"
-            : "BibleOL_verbal-ambiguity-project_v1.43b-aram.csv"};
+            ? "BibleOL_verbal-ambiguity-project_v1.45-heb.csv"
+            : "BibleOL_verbal-ambiguity-project_v1.45-aram.csv"};
 
         try {
             csv.Load(csvfile);
