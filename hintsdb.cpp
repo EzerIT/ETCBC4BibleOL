@@ -77,6 +77,21 @@ class selector {
             if (alldiff(at(r,col1), at(r,col2), at(r,col3)))
                 return feat_diff2string.at(i) + "=" + at(r,col1);
         }
+
+        // We do in two situations (Dan 5:20 and Dan 7:19) reach this point.
+        // In that case we look for a value that distinugishes just the primary (correct) option.
+        // As a matter of fact, we could use this mechanism everywhere, but by now the hints found
+        // by the "alldiff" methods are well established, so we'll leave them in place.
+
+        for (int i=0; i<feat_diff1.size(); ++i) {
+            cols col1 = feat_diff1[i];
+            cols col2 = feat_diff2[i];
+            cols col3 = feat_diff3[i];
+        
+            if (partdiff(at(r,col1), at(r,col2), at(r,col3)))
+                return feat_diff2string.at(i) + "=" + at(r,col1);
+        }
+
         for (auto rc : r)
             cerr << rc << " ";
         cerr << "INDETERMINATE 2\n";
@@ -162,7 +177,7 @@ class selector {
     inline static array feat_diff4{cols::ps4, cols::gn4, cols::nu4, cols::vt4, cols::vs4, cols::suffix_person4, cols::suffix_number4, cols::suffix_gender4};
 
     // Translates int(feat_diff) to string
-    inline static array feat_diff2string{"ps"s, "nu"s, "gn"s, "vt"s, "vs"s, "suffix_person"s, "suffix_number"s, "suffix_gender"s};
+    inline static array feat_diff2string{"ps"s, "gn"s, "nu"s, "vt"s, "vs"s, "suffix_person"s, "suffix_number"s, "suffix_gender"s};
 
     static bool alldiff(const string& s1, const string& s2) {
         return s1!=s2 && s1!="unknown" && s2!="unknown";
@@ -176,6 +191,11 @@ class selector {
     static bool alldiff(const string& s1, const string& s2, const string& s3, const string& s4) {
         return s1!=s2 && s1!=s3 && s1!=s4 && s2!=s3 && s2!=s4 && s3!=s4
             && s1!="unknown" && s2!="unknown" && s3!="unknown" && s4!="uknown";
+    }
+
+    static bool partdiff(const string& s1, const string& s2, const string& s3) {
+        return s1!=s2 && s1!=s3
+            && s1!="unknown";
     }
 };
  
