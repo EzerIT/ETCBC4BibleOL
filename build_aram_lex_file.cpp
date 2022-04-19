@@ -86,6 +86,20 @@ map<int,int> output2input = { {  1,  4 },   // lex
                               { 15, 34 },   // Etpeel   
                               { 16, 33 } }; // Etpaal   
 
+string quoteit(const string& s)
+{
+    string outs = "\"";
+
+    for (const char x : s)
+        if (x=='"')
+            outs.append("\"\"");
+        else
+            outs.push_back(x);
+
+    outs.append("\"");
+
+    return outs;
+}
 
 int main()
 {
@@ -116,12 +130,12 @@ int main()
                 for (int cix=0; cix<MAX_OUT_FIELD; ++cix)
                     if (output2input.count(cix)>0) {
                         string s = row[output2input[cix]];
-                        outfile.SetCell<string>(cix, rix, s.empty() ? "" : '"' + row[output2input[cix]] + '"');
+                        outfile.SetCell<string>(cix, rix, s.empty() ? "" : quoteit(row[output2input[cix]]));
                     }
             }
             else { // Not a verb
-                outfile.SetCell<string>(1, rix, '"' + row[4] + '"');
-                outfile.SetCell<string>(4, rix, '"' + (row[19].empty() ? row[14] : row[19]) + '"');
+                outfile.SetCell<string>(1, rix, quoteit(row[4]));
+                outfile.SetCell<string>(4, rix, quoteit(row[19].empty() ? row[14] : row[19]));
             }
         }
         
