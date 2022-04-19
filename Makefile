@@ -67,6 +67,8 @@ testtranslit: hebrew_transliterator.cpp hebrew_transliterator.hpp util.hpp util.
 build_aram_lex_file: build_aram_lex_file.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
+build_heb_es_lex_file: build_heb_es_lex_file.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
 	rm -f $(OBJFILES) $(OBJFILES2) $(OBJFILES3) $(DEPFILES) emdros_updater update.mql ETCBC4 ETCBC4_words.db ETCBC4_hints.db hintsdb.sql hintsdb worddb.sql worddb
