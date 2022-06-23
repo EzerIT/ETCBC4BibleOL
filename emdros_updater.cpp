@@ -13,6 +13,7 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <cassert>
 
 #include "emdros_iterators.hpp"
 #include "frequency_handler.hpp"
@@ -21,6 +22,7 @@
 #include "strip_handler.hpp"
 #include "translit_handler.hpp"
 #include "suffix_handler.hpp"
+#include "monad_feature_handler.hpp"
 
 using namespace std;
 
@@ -181,6 +183,7 @@ int main(int argc, char **argv)
             make_strip_handler(),
             make_translit_handler(),
             make_suffix_handler(),
+            make_monad_feature_handler(),
         };
 
         //==================================================
@@ -218,7 +221,13 @@ int main(int argc, char **argv)
 
                         for (pair<string, int> si : simap)
                             fmap[si.first] = mo_inner.getFeatureAsString(si.second);
-
+                        
+                        // Add "monad" as a feature value
+                        SetOfMonads som = mo_inner.getMonads();
+                        assert(som.first() == som.last());
+                        
+                        fmap["monad"] = to_string(som.first());
+                        
                         feature_maps[mo_inner.getID_D()] = fmap;
                     }
                 }
