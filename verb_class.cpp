@@ -62,7 +62,7 @@ static map<string, set<string>> verb_classes_heb, verb_classes_aram;
 
 // is_hebrew is true for Hebrew and false for Aramaic
 void build_newgloss(bool is_hebrew) {
-    string lexfilename{is_hebrew ? "ETCBC4-frequency4.02_progression-heb.csv" : "ETCBC4-frequency4.02_progression-aram.csv"};
+    string lexfilename{is_hebrew ? "ETCBC4-frequency4.04_progression-heb.csv" : "ETCBC4-frequency4.04_progression-aram.csv"};
 
     rapidcsv::Document lexfile;
 

@@ -31,6 +31,5 @@ string monad_feature_handler::define_features()
 
 string monad_feature_handler::update_object(const map<string,string>& fmap)
 {
-    return "    monad_nump
-        := " + fmap.at("monad") + ";\n";
+    return "    monad_num := " + fmap.at("monad") + ";\n";
 }
