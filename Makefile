@@ -10,9 +10,9 @@ OBJFILES3=hintsdb.o emdros_iterators.o util.o
 
 DEPFILES=$(OBJFILES:.o=.d) $(OBJFILES2:.o=.d) $(OBJFILES3:.o=.d)
 
-CXX=g++
+CXX=c++-11.1.0
 
-CXXFLAGS=-std=c++17 -MMD -O3 -I /usr/local/include
+CXXFLAGS=-std=c++20 -MMD -O3 -I /usr/local/include
 LDLIBS= -L /usr/local/lib 
 LDFLAGS= -lpcrecpp -lemdros_amalgamation -lpthread -ldl
 

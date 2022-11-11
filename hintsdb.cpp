@@ -60,7 +60,10 @@ class selector {
             cols col2 = feat_diff2[i];
 
             if (alldiff(at(r,col1), at(r,col2)))
-                return feat_diff2string.at(i) + "=" + at(r,col1);
+                if (twovalues.contains(i))
+                    return feat_diff2string.at(i) + "=" + at(r,col1);
+                else
+                    return feat_diff2string.at(i) + "≠" + at(r,col2);
         }
         for (auto rc : r)
             cerr << rc << " ";
@@ -75,7 +78,10 @@ class selector {
             cols col3 = feat_diff3[i];
             
             if (alldiff(at(r,col1), at(r,col2), at(r,col3)))
-                return feat_diff2string.at(i) + "=" + at(r,col1);
+                if (twovalues.contains(i))
+                    return feat_diff2string.at(i) + "=" + at(r,col1);
+                else
+                    return feat_diff2string.at(i) + "≠" + at(r,col2) + "," + feat_diff2string.at(i) + "≠" + at(r,col3);
         }
 
         // We do in two situations (Dan 5:20 and Dan 7:19) reach this point.
@@ -89,7 +95,10 @@ class selector {
             cols col3 = feat_diff3[i];
         
             if (partdiff(at(r,col1), at(r,col2), at(r,col3)))
-                return feat_diff2string.at(i) + "=" + at(r,col1);
+                if (threevalues.contains(i) || at(r,col2)!=at(r,col3))
+                    return feat_diff2string.at(i) + "=" + at(r,col1);
+                else
+                    return feat_diff2string.at(i) + "≠" + at(r,col2);
         }
 
         for (auto rc : r)
@@ -176,6 +185,10 @@ class selector {
     inline static array feat_diff3{cols::ps3, cols::gn3, cols::nu3, cols::vt3, cols::vs3, cols::suffix_person3, cols::suffix_number3, cols::suffix_gender3};
     inline static array feat_diff4{cols::ps4, cols::gn4, cols::nu4, cols::vt4, cols::vs4, cols::suffix_person4, cols::suffix_number4, cols::suffix_gender4};
 
+    // This identifies the index into feat_diffX for features with 2 or 3 main values:
+    inline static set<int> twovalues{1,7}; // gender, suffix_gender
+    inline static set<int> threevalues{0,2,5,6}; // person, number, suffix_person, suffix_number
+    
     // Translates int(feat_diff) to string
     inline static array feat_diff2string{"ps"s, "gn"s, "nu"s, "vt"s, "vs"s, "suffix_person"s, "suffix_number"s, "suffix_gender"s};
 
