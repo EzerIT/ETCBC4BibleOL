@@ -11,6 +11,7 @@ ETCBC4
 hintsdb
 hintsdb.sql
 ETCBC4_hints.db
+ETCBC4-before-extra-tenses
 build_aram_lex_file
 build_heb_es_lex_file
 aram_en.csv
