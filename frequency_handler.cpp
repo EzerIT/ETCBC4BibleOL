@@ -112,7 +112,7 @@ void frequency_handler::finish_prepare()
         for (size_t rix=0; rix<lexfile.GetRowCount(); ++rix) {
             vector<string> v = lexfile.GetRow<string>(rix);
 
-//            cout << "+++ " << v[F_LEXEME_IN_LEX] << " +++ " << freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX]) << " +++\n";
+            cout << "lexfilename = '" << lexfilename << "' +++ " << v[F_LEXEME_IN_LEX] << " +++ " << freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX]) << " +++" << std::endl;
             
             assert(freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX])>0);
             assert(freq_info[lang_index].fa_order.count(v[F_LEXEME_IN_LEX])==0);
