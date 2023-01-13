@@ -91,10 +91,10 @@ void frequency_handler::finish_prepare()
 
     // Fields in the csv file:
     constexpr int F_SECTION		  = 0; //  Section
-	constexpr int F_FA_ORDER	  = 1; //  Frequency+alphabetica order
-	constexpr int F_OCCUR		  = 2; //  Occurrences
-	constexpr int F_ABS_ORDER	  = 3; //  absolut alphabetic order
-	constexpr int F_LEXEME_IN_LEX = 4; //  Lexeme in lexicon
+    constexpr int F_FA_ORDER	  = 1; //  Frequency+alphabetica order
+    constexpr int F_OCCUR		  = 2; //  Occurrences
+    constexpr int F_ABS_ORDER	  = 3; //  absolut alphabetic order
+    constexpr int F_LEXEME_IN_LEX = 4; //  Lexeme in lexicon
     
     for (int lang_index=0; lang_index<2; ++lang_index) { // lang_index is 0 for Hebrew, 1 for Aramaic
         string lexfilename{lang_index==0 ? "ETCBC4-frequency4.04_progression-heb.csv" : "ETCBC4-frequency4.04_progression-aram.csv"};
@@ -109,15 +109,29 @@ void frequency_handler::finish_prepare()
             exit(1);
         }
 
+	// Set the 
         for (size_t rix=0; rix<lexfile.GetRowCount(); ++rix) {
             vector<string> v = lexfile.GetRow<string>(rix);
 
-            cout << "lexfilename = '" << lexfilename << "' +++ " << v[F_LEXEME_IN_LEX] << " +++ " << freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX]) << " +++" << std::endl;
-            
-            assert(freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX])>0);
-            assert(freq_info[lang_index].fa_order.count(v[F_LEXEME_IN_LEX])==0);
-            
-            freq_info[lang_index].fa_order[v[F_LEXEME_IN_LEX]] = v[F_FA_ORDER];
+            // cout << "lexfilename = '" << lexfilename << "' +++ " << v[F_LEXEME_IN_LEX] << " +++ " << freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX]) << " +++" << std::endl;
+
+	    if (freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX])==0) {
+		std::cerr << "WARNING: The lexeme '" << v[F_LEXEME_IN_LEX] << "' occurs in the file '" << lexfilename << "', but it does not occur in the actual bhs4 database.\nPlease contact the maintainer of the file '" << lexfilename << "'\nin order to have this fixed. The maintainer of this file is probably\nOliver Glanz." << std::endl;
+	    } else {
+
+		// The lexeme should have been set in
+		// freq_info[lang_index].rank, and its value should be
+		// greater than 0.
+		// Assert that this is so.
+		assert(freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX])>0);
+
+		// The lexeme should not yet have an entry in
+		// freq_info[lang_index].fa_order.
+		// Assert that this is so.
+		assert(freq_info[lang_index].fa_order.count(v[F_LEXEME_IN_LEX])==0);
+
+		freq_info[lang_index].fa_order[v[F_LEXEME_IN_LEX]] = v[F_FA_ORDER];
+	    }
         }
     }
 }
