@@ -100,9 +100,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    ofstream ofile{argv[2]};
+    std::string output_filename = argv[2];
+
+    ofstream ofile{output_filename.c_str()};
     if (!ofile) {
-        cerr << "Cannot open " << argv[2] << endl;
+        cerr << "Cannot open " << output_filename << endl;
         return 1;
     }
 
@@ -189,7 +191,10 @@ int main(int argc, char **argv)
         //==================================================
         // Gather information
         //==================================================
-    
+
+	std::cout << "Gathering required information..." << std::endl;
+
+	std::cout << "... Building MQL request ... " << std::flush;
         set<string> required_features{"self"}; // We always need "self"
         freq_hand->list_features(required_features);
         for (const auto& h : handlers)
@@ -197,6 +202,10 @@ int main(int argc, char **argv)
 
         map<string,int> simap;
         string mql_request = build_request(required_features, simap, book);
+	std::cout << "Done!" << std::endl;
+
+	
+	std::cout << "... Executing MQL request ... " << std::flush;
         if (!EE.executeString(mql_request, bResult, false, true))
             return 1;
 
@@ -204,8 +213,9 @@ int main(int argc, char **argv)
             cerr << "ERROR: Result is not sheaf\n";
             return 1;
         }
+	std::cout << "Done!" << std::endl;
 
-
+	std::cout << "... Harvesting the results from the sheaf ... " << std::flush;
         map<int, map<string, string>> feature_maps; // Maps id_d to feature=>value map
 
         for (StrawOk s_outer : SheafOk{EE.getSheaf()}) {
@@ -233,7 +243,9 @@ int main(int argc, char **argv)
                 }
             }
         }
-
+	std::cout << "Done!" << std::endl;
+	
+	std::cout << "... Preparing objects ... " << std::endl;
         int count = 0, fullcount = 0;
         int mapsize = feature_maps.size();
         for (auto& fm : feature_maps) {
@@ -248,13 +260,21 @@ int main(int argc, char **argv)
         }
         cout << "100%" << endl;  // Just to look pretty
 
+	std::cout << "Done!" << std::endl;
+
+	std::cout << "... Finishing the preparation of objects ... " << std::flush;
         for (const auto& h : handlers)
             h->finish_prepare();
+	std::cout << "Done!" << std::endl;
 
+	std::cout << "Done gathering required information.\n" << std::endl ;
+	
         //==================================================
         // Generate MQL
         //==================================================
-    
+
+	std::cout << "Generating MQL in file '" << output_filename << "' ..." << std::endl;
+
         if (!has_defined_features) {
             has_defined_features = true;
         
@@ -292,4 +312,5 @@ int main(int argc, char **argv)
         ofile << "COMMIT TRANSACTION GO\n";
     }
     ofile << "\nVACUUM DATABASE ANALYZE GO\n";
+    std::cout << "Done gerating MQL.\n" << std::endl;
 }
