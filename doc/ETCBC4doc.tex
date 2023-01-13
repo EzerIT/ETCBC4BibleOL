@@ -76,6 +76,22 @@ In the \texttt{ETCBC4BibleOL} you must locate this line in the Makefile:
 \noindent
 and replace ``\texttt{../bhs4/bhs4}'' with the path name of the original ETCBC4 database.
 
+The \emph{emdros\_updater} program depends on the pcre-cpp package, a
+C++ binding for the PCRE regex library. Note that this is PCRE, not
+PCRE2.
+
+On Fedora Linux, you can install the required packages with this
+command:
+
+\vspace{1ex}
+
+\quad\texttt{sudo dnf install pcre-devel pcre-cpp}
+
+\vspace{1ex}
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%% Generating ETCBC4 %%%%%%%%%%%%%%%%%%%%
 \chapter{Generating ETCBC4}
