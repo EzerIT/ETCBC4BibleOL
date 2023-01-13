@@ -1,0 +1,289 @@
+\documentclass[11pt,oneside,a4paper,article]{memoir}
+\usepackage{fontspec}
+\usepackage[unicode=true,xetex,colorlinks=true,linkcolor=blue,urlcolor=blue,bookmarksnumbered=true,bookmarksdepth=3]{hyperref}
+\usepackage{bidi} % Must be last
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Configuration %%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% Fonts %%%
+\setmainfont[Ligatures=TeX]{Linux Libertine O}
+\newfontfamily{\ezr}[Script=Hebrew]{EzraSIL}
+
+\newfontfamily{\mainnolig}{Linux Libertine O}
+\newcommand{\q}{{\mainnolig '}}
+
+\newcommand{\heb}[1]{{\RL {\ezr #1}}}
+
+
+%%% Page layout %%%
+\settypeblocksize{247mm}{160mm}{*}
+\setlrmargins{*}{*}{1}
+\setulmargins{*}{*}{1}
+\checkandfixthelayout
+
+%%% Hyperref (Information in PDF) %%%
+\hypersetup{
+unicode=true,
+pdfauthor={Claus Tøndering},
+pdftitle={Generating ETCBC4}
+}
+
+%%% Lists %%%
+\tightlists
+
+%%% Allow extra space between words %%%
+\sloppy
+
+
+%%% Font matter %%%
+\title{Generating ETCBC4}
+\author{Claus Tøndering}
+\date{13 January 2023}
+
+
+\begin{document}
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Introduction %%%%%%%%%%%%%%%%%%%%
+\chapter{Introduction}
+
+This document gives a brief introduction to how to generate the ETCBC4 Emdros database for Bible
+Online Learner on a Linux computer.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Prerequisites %%%%%%%%%%%%%%%%%%%%
+\chapter{Prerequisites}
+
+In order to execute this process, you need to clone the GitHub repository
+\texttt{https://github.com/\-EzerIT/ETCBC4BibleOL.git}. In the following description I assume that you
+have cloned the repository into a folder called \texttt{ETCBC4BibleOL}.
+
+You also need a version of the original ETCBC4 Emdros database from the Eep Talstra Centre for Bible
+and Computer. I use what I believe to be version 1.29 from January 2017.
+
+In the \texttt{ETCBC4BibleOL} you must locate this line in the Makefile:
+
+\vspace{1ex}
+
+\quad\texttt{BHS4=../bhs4/bhs4  \# Location of source Emdros database}
+
+\vspace{1ex}
+
+\noindent
+and replace ``\texttt{../bhs4/bhs4}'' with the path name of the original ETCBC4 database.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Generating ETCBC4 %%%%%%%%%%%%%%%%%%%%
+\chapter{Generating ETCBC4}
+
+Executing the command ``make'' in the \texttt{ETCBC4BibleOL} folder should generate the ETCBC4
+Emdros database for Bible OL. This takes slightly more than an hour on my computer.
+
+The steps of the process are detailed in the following sections.
+
+\section{Compiling \emph{emdros\_updater}}
+
+The C++ source code for \emph{emdros\_updater} is compiled. A C++ compiler that supports the
+``-std=c++20'' flag is required.
+
+\section{Executing \emph{emdros\_updater}}
+
+\noindent \textbf{Inputs:}
+\begin{itemize}
+\item The original ETCBC4 database
+\item \texttt{ETCBC4-frequency4.04\_progression-heb.csv}
+\item \texttt{ETCBC4-frequency4.04\_progression-aram.csv}
+\end{itemize}
+
+\noindent \textbf{Output:} \texttt{update.mql}
+
+\vspace{1ex}
+
+The files \texttt{ETCBC4-frequency4.04\_progression-*.csv} are taken from the Excel file
+\texttt{ETCBC4-frequency4.04\_progression.xlsx} created by Oliver Glanz. They contain information
+for the \emph{fa\_order} and \emph{verb\_class} features.
+
+The \emph{emdros\_updater} program generates data for the following Emdros features:
+
+\begin{itemize}
+\item fa\_order
+\item frequency\_rank
+\item g\_lex\_cons\_utf8
+\item g\_lex\_translit
+\item g\_nme\_cons\_utf8
+\item g\_nme\_translit
+\item g\_pfm\_cons\_utf8
+\item g\_pfm\_translit
+\item g\_prs\_cons\_utf8
+\item g\_prs\_translit
+\item g\_suffix\_translit
+\item g\_uvf\_cons\_utf8
+\item g\_uvf\_translit
+\item g\_vbe\_cons\_utf8
+\item g\_vbe\_translit
+\item g\_vbs\_cons\_utf8
+\item g\_vbs\_translit
+\item g\_voc\_lex\_cons\_utf8
+\item g\_voc\_lex\_translit
+\item g\_word\_cons\_utf8
+\item g\_word\_nocant
+\item g\_word\_nocant\_utf8
+\item g\_word\_nopunct\_translit
+\item g\_word\_nostress
+\item g\_word\_nostress\_utf8
+\item g\_word\_translit
+\item lex\_cons\_utf8
+\item lexeme\_occurrences
+\item monad\_num
+\item qere\_translit
+\item verb\_class
+\end{itemize}
+
+The execution of \emph{emdros\_updater} takes considerable time, and the progress through the books
+of the Bible is shown on the console.
+
+Note that \emph{emdros\_updater} may warn about illegal final characters in a few cases. The warnings
+may look like this:
+
+\vspace{1ex}
+
+  \quad\texttt{Bad final character corrected: }\heb{בֵינֶֽיכָ}\texttt{  GEN 16,05}
+
+\vspace{1ex}
+
+In my case I get three of these warnings. They indicate errors in the original ETCBC4 text.
+
+\section{Applying \texttt{update.mql}}
+
+\noindent \textbf{Inputs:}
+\begin{itemize}
+\item The original ETCBC4 database
+\item \texttt{update.mql}
+\end{itemize}
+
+\noindent \textbf{Output:} Updated ETCBC4 database
+
+\vspace{1ex}
+
+The ``mql'' command is executed and updates ETCBC4 with the information generated in the previous
+step. During this process the ``mql'' command outputs more than two million lines of text to the
+console.
+
+\section{Executing \emph{change\_mql.sh}}
+
+\noindent \textbf{Input:} The ETCBC4 database
+
+\noindent \textbf{Output:} Updated ETCBC4 database
+
+\vspace{1ex}
+
+The program ``mqldump'' is executed on the ETCBC4 database, the output is piped through the shell
+script \emph{change\_mql.sh} which adds ``FROM SET'' and ``WITH INDEX'' to a number of features.
+
+Finally, the ETCBC4 database is recreated from the updated MQL file.
+
+\section{Executing \emph{fix\_lower\_dots.sh}}
+
+\noindent \textbf{Input:} The ETCBC4 database
+
+\noindent \textbf{Output:} Updated ETCBC4 database
+
+\vspace{1ex}
+
+This shell script \emph{fix\_lower\_dots.sh} is executed. It changes the lower dots of the first
+word of Ps 27:13 from Unicode character U+0323 to U+05C5.
+
+
+\section{Executing \emph{extra\_tenses/make\_update.sh}}
+
+\noindent \textbf{Inputs:}
+\begin{itemize}
+\item The ETCBC4 database
+\item \texttt{extra\_tenses/cohortative.mql}
+\item \texttt{extra\_tenses/emphatic\_imperative.mql}
+\item \texttt{extra\_tenses/jussive.mql}
+\end{itemize}
+
+\noindent \textbf{Output:} Updated ETCBC4 database
+
+\vspace{1ex}
+
+The shell script \emph{make\_update.sh} in the folder \emph{extra\_tenses} is executed. It uses
+three MQL files in that folder to identify certain verbs and adds the extra verbal tenses
+\emph{juss, coho,} and \emph{emin} to the verbs. The MQL files were created by Oliver Glanz.
+
+\vspace{1ex}
+
+\noindent
+At this point the ETCBC4 database is finished.
+
+\section{Compiling \emph{worddb}}
+
+The C++ source code for \emph{worddb} is compiled.
+
+
+\section{Executing \emph{worddb}}
+
+\noindent \textbf{Input:} The ETCBC4 database.
+
+\noindent \textbf{Output:} The \texttt{ETCBC4\_words.db} database.
+
+\vspace{1ex}
+
+The \emph{worddb} program is executed. It creates the so-called ``words database''. For information
+about this database, see the chapter \emph{Multiple-Choice Questions} in the Bible OL technical
+documentation.
+
+\section{Compiling \emph{hintsdb}}
+
+The C++ source code for \emph{hintsdb} is compiled.
+
+
+\section{Executing \emph{hintsdb}}
+
+\noindent \textbf{Input:} The ETCBC4 database.
+
+\noindent \textbf{Output:} The \texttt{ETCBC4\_hints.db} database.
+
+\vspace{1ex}
+
+The \emph{hintsdb} program is executed. I creates the so-called ``hints database''. For information
+about this database, see the chapter \emph{Hints} in the Bible OL technical
+documentation.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Generating Lexicons %%%%%%%%%%%%%%%%%%%%
+\chapter{Generating Lexicons}
+
+There are currently programs available for generating these lexicons:
+\begin{itemize}
+\item Aramaic-English
+\item Hebrew-Spanish
+\end{itemize}
+
+Executing the command ``make build\_aram\_lex\_file'' in the \texttt{ETCBC4BibleOL} folder compiles the
+program \emph{build\_aram\_lex\_file}. The program is then executed. It takes input from
+\texttt{ETCBC4-frequency4.02\_progression-aram.csv} (provided by Oliver Glanz) and generates
+\texttt{aram\_en.csv} which can be uploaded to Bible OL as an Aramaic-English dictionary.
+
+Similarly, executing the command ``make build\_heb\_es\_lex\_file'' in the \texttt{ETCBC4BibleOL} folder compiles the
+program \emph{build\_heb\_es\_lex\_file}. The program is then executed. It takes input from
+\texttt{BibleOL\_dictionary\_Hebrew-Spanish\_v1.2.csv} (provided by Oliver Glanz) and generates
+\texttt{heb\_es.csv} which can be uploaded to Bible OL as a Hebrew-Spanish dictionary.
+
+These two programs can be used as templates for creating other lexicons.
+
+
+\end{document}
+
+% Local Variables:
+% mode: latex
+% ispell-dictionary: "british-ize"
+% ispell-extra-args: ("--home-dir=/home/claus/Projects/BibleOL/techdoc")
+% eval: (auto-fill-mode 1)
+% End:

@@ -1,0 +1,10 @@
+*.aux
+*.log
+*.out
+*.toc
+*.idx
+*.ilg
+*.ind
+*.rubbercache
+.aspell.en.pws
+.aspell.en.prepl
