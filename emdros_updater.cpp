@@ -95,12 +95,23 @@ vector<string> allbooks {
 
 int main(int argc, char **argv)
 {
-    if (argc!=3) {
-        cerr << "Usage: emdros_updater <database name> <output file>\n";
+    if (argc<3) {
+        cerr << "Usage: emdros_updater <database name> <output file> [<bookname1> <bookname2> ...]\n";
         return 1;
     }
 
     std::string output_filename = argv[2];
+
+    std::vector<std::string> book_names;
+
+    if (argc == 3) {
+	book_names = allbooks;
+    } else {
+	int arg_index;
+	for (arg_index = 3; arg_index < argc; ++arg_index) {
+	    book_names.push_back(std::string(argv[arg_index]));
+	}
+    }
 
     ofstream ofile{output_filename.c_str()};
     if (!ofile) {
@@ -172,7 +183,8 @@ int main(int argc, char **argv)
 
     // The remainder is done per book of the OT
     bool has_defined_features = false;
-    for (string& book : allbooks) {
+
+    for (string& book : book_names) {
         // Create handlers. The frequency handler is being reused from above
         // Alas, we cannot use unique_ptr in handlers, because initializer list elemets must be copyable
 
@@ -192,9 +204,9 @@ int main(int argc, char **argv)
         // Gather information
         //==================================================
 
-	std::cout << "Gathering required information..." << std::endl;
+	cout << "Gathering required information..." << endl;
 
-	std::cout << "... Building MQL request ... " << std::flush;
+	cout << "... Building MQL request ... " << flush;
         set<string> required_features{"self"}; // We always need "self"
         freq_hand->list_features(required_features);
         for (const auto& h : handlers)
@@ -202,10 +214,10 @@ int main(int argc, char **argv)
 
         map<string,int> simap;
         string mql_request = build_request(required_features, simap, book);
-	std::cout << "Done!" << std::endl;
+	cout << "Done!" << endl;
 
 	
-	std::cout << "... Executing MQL request ... " << std::flush;
+	cout << "... Executing MQL request ... " << flush;
         if (!EE.executeString(mql_request, bResult, false, true))
             return 1;
 
@@ -213,9 +225,9 @@ int main(int argc, char **argv)
             cerr << "ERROR: Result is not sheaf\n";
             return 1;
         }
-	std::cout << "Done!" << std::endl;
+	cout << "Done!" << endl;
 
-	std::cout << "... Harvesting the results from the sheaf ... " << std::flush;
+	cout << "... Harvesting the results from the sheaf ... " << flush;
         map<int, map<string, string>> feature_maps; // Maps id_d to feature=>value map
 
         for (StrawOk s_outer : SheafOk{EE.getSheaf()}) {
@@ -243,14 +255,19 @@ int main(int argc, char **argv)
                 }
             }
         }
-	std::cout << "Done!" << std::endl;
+	cout << "Done!" << endl;
 	
-	std::cout << "... Preparing objects ... " << std::endl;
+	cout << "... Preparing objects ... " << endl;
         int count = 0, fullcount = 0;
         int mapsize = feature_maps.size();
         for (auto& fm : feature_maps) {
-            for (const auto& h : handlers)
+	    // cout << "... id_d = " << fm.first << " verse_label = " << fm.second["verse_label"] << " monad = " << fm.second["monad"] << " lex = " << fm.second["lex"] << endl;
+	    
+            for (const auto& h : handlers) {
+		// cout << "handler = " << h->handler_name() << endl;
+		
                 h->prepare_object(fm.second);
+	    }
 
             ++fullcount;
             if (count++ == 1000) {
@@ -260,20 +277,20 @@ int main(int argc, char **argv)
         }
         cout << "100%" << endl;  // Just to look pretty
 
-	std::cout << "Done!" << std::endl;
+	cout << "Done!" << endl;
 
-	std::cout << "... Finishing the preparation of objects ... " << std::flush;
+	cout << "... Finishing the preparation of objects ... " << flush;
         for (const auto& h : handlers)
             h->finish_prepare();
-	std::cout << "Done!" << std::endl;
+	cout << "Done!" << endl;
 
-	std::cout << "Done gathering required information.\n" << std::endl ;
+	cout << "Done gathering required information.\n" << endl ;
 	
         //==================================================
         // Generate MQL
         //==================================================
 
-	std::cout << "Generating MQL in file '" << output_filename << "' ..." << std::endl;
+	cout << "Generating MQL in file '" << output_filename << "' ..." << endl;
 
         if (!has_defined_features) {
             has_defined_features = true;
@@ -312,5 +329,5 @@ int main(int argc, char **argv)
         ofile << "COMMIT TRANSACTION GO\n";
     }
     ofile << "\nVACUUM DATABASE ANALYZE GO\n";
-    std::cout << "Done gerating MQL.\n" << std::endl;
+    cout << "Done gerating MQL.\n" << endl;
 }
