@@ -207,7 +207,7 @@ int main(int argc, char **argv)
         // Gather information
         //==================================================
 
-	cout << "Gathering required information..." << endl;
+	cout << "Gathering required information for " << book << " ..." << endl;
 
 	cout << "... Building MQL request ... " << flush;
         set<string> required_features{"self"}; // We always need "self"
@@ -260,7 +260,7 @@ int main(int argc, char **argv)
         }
 	cout << "Done!" << endl;
 	
-	cout << "... Preparing objects ... " << endl;
+	cout << "... Preparing objects for " << book << " ... " << endl;
         int count = 0, fullcount = 0;
         int mapsize = feature_maps.size();
         for (auto& fm : feature_maps) {
@@ -282,20 +282,20 @@ int main(int argc, char **argv)
 
 	cout << "Done!" << endl;
 
-	cout << "... Finishing the preparation of objects ... " << flush;
+	cout << "... Finishing the preparation of objects for " << book << " ... " << flush;
         for (const auto& h : handlers)
             h->finish_prepare();
 	cout << "Done!" << endl;
 
-	cout << "Done gathering required information.\n" << endl ;
+	cout << "Done gathering required information for " << book << ".\n" << endl;
 	
         //==================================================
         // Generate MQL
         //==================================================
 
-	cout << "Generating MQL in file '" << output_filename << "' ..." << endl;
+	cout << "Generating MQL for " << book << " in file '" << output_filename << "' ..." << endl;
 
-	cout << "... Doing pre_create() and define_features() for [word]... " << flush;
+	cout << "... Generating MQL by calling pre_create() and define_features() for [word]... " << flush;
         if (!has_defined_features) {
             has_defined_features = true;
         
@@ -317,7 +317,7 @@ int main(int argc, char **argv)
 
         count = 0;
 
-	cout << "... Doing update_object() for [word]... " << flush;
+	cout << "... Generating MQL by calling update_object() for [word]... " << flush;
         for (auto& fm : feature_maps) {
             if (count++ == 1000) {
                 ofile << "COMMIT TRANSACTION GO\n"
@@ -344,8 +344,10 @@ int main(int argc, char **argv)
         }
 	cout << "Done!" << endl;
 
+
         ofile << "COMMIT TRANSACTION GO\n";
+
+	cout << "Done generating MQL.\n" << endl;
     }
     ofile << "\nVACUUM DATABASE ANALYZE GO\n";
-    cout << "Done gerating MQL.\n" << endl;
 }
