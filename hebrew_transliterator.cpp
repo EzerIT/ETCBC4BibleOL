@@ -550,6 +550,8 @@ void initialize_translit_verbrules()
  */
 string transliterate(string preceding_text, string input,
                      string following_text, const map<string, string>& input_attributes, bool uc, bool do_qere_perpetuum, bool cantil_available) {
+    // std::cout << "Starting transliterate(\"" << preceding_text << "\", input=\"" << input << "\", following_text = " << following_text << ", input_attributes<>..., uc, do_qere_perpetuum, cantil_available): self = " << input_attributes.at("self") << std::endl;
+    
     // Remove puncta extraordinaria
     replace_string_in_place(input,          PUNCT_EXT_ABOVE, "");
     replace_string_in_place(input,          PUNCT_EXT_BELOW, "");
@@ -608,6 +610,8 @@ string transliterate(string preceding_text, string input,
         output += result;
         pos += consumed.length();
     }
+
+    // std::cout << "Done! Output = '" << output << "'" << std::endl;
     return output;
 }
 
@@ -661,7 +665,14 @@ string suffix_transliterate(const string& heb_suffix)
         { "\u05c3 \u05e4 ",        ": " }, // Sof pasuq, pe
         { " \u05e1 ",              " "  }, // Samekh 
         { " \u05e4 ",              " "  }, // pe
+	{ "\u05c3 \u05e0 \u05e1 ", ": " }, // Sof pasuq, nun, samekh
+	{ "\u05c3 \u05e0 \u05e4 ", ": " }, // Sof pasuq, nun, pe
     };
+
+    if (!suffixmap.contains(heb_suffix)) {
+	std::cerr << "ERROR: heb_suffix = '" << heb_suffix << "' is not present in suffixmap.\nPlease add it in hebrew_transliterator.cpp." << std::endl;
+	// The at() below will cause an error.
+    }
 
     return suffixmap.at(heb_suffix);
 }
