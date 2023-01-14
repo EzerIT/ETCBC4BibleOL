@@ -89,13 +89,17 @@ void translit_handler::chk_o(const map<string,string> * fmapp)
     if (words.size()==5) {
         // Now we can transliterate the middle word
 
+	// std::cout << "words[2]: monad = " << words[2]["monad"] << " lex = " << words[2]["lex"] << " qere_utf8 = '" << words[2]["qere_utf8"] << "'" << std::endl;
+	
+
         bool ketiv = !words[2].at("qere_utf8").empty();
+	// std::cout << "ketiv = " << ketiv << std::endl;
 
         translit_strings translits;
 
         translits.g_suffix_translit = suffix_transliterate(words[2].at("g_suffix_utf8"));
         words[2]["g_suffix_translit"] = translits.g_suffix_translit; // used by transliterate()
-        
+
         translits.g_word_translit = transliterate(words[0].at("g_word_utf8")+words[0].at("g_suffix_utf8")+
                                                 words[1].at("g_word_utf8")+words[1].at("g_suffix_utf8"),
 
