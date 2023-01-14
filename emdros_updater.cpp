@@ -133,6 +133,8 @@ int main(int argc, char **argv)
     // Gather frequency information for entire Old Testament
     //=======================================================
 
+    cout << "Gathering required frequency information for the entire Old Testament..." << endl;
+
     shared_ptr<handler> freq_hand = make_frequency_handler();
     {
         set<string> required_features{"self"}; // We always need "self"
@@ -179,6 +181,7 @@ int main(int argc, char **argv)
 
         // *freq_hand now contains frequencies and frequency ranks for all lexemes
     }
+    cout << "Done gatering frequency information for the entire Old Testament!\n" << endl;
 
 
     // The remainder is done per book of the OT
@@ -323,11 +326,21 @@ int main(int argc, char **argv)
                 count = 0;
             }
 
+	    // cout << "    word.id_d = " << fm.first;
             ofile << "UPDATE OBJECT BY ID_DS = " << fm.first << " [word\n";
+
+	    // cout << ", ... calling freq_hand->update_object(), ..." << flush;
+	    
             ofile << freq_hand->update_object(fm.second);
-            for (const auto& h : handlers)
+
+	    // cout << ", Done! Now doing other handlers->update_object() ..." << flush;
+
+	    for (const auto& h : handlers)
                 ofile << h->update_object(fm.second);
             ofile << "] GO\n";
+
+	    // cout << "Done!" << endl;
+	    
         }
 	cout << "Done!" << endl;
 
