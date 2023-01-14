@@ -58,6 +58,9 @@ void frequency_handler::prepare_object(map<string,string>& fmap)
 
 void frequency_handler::finish_prepare()
 {
+    //
+    // Compute freq_info[...].rank from freq_info[...].total
+    // 
     for (int lang_index=0; lang_index<2; ++lang_index) {
         Frequency_data& fd = freq_info[lang_index];
 
@@ -69,8 +72,8 @@ void frequency_handler::finish_prepare()
         // Use frequencies to generate frequency ranks
 
         int rank = 1;		// Current rank
-		int last_freq = 0;	// Last frequency inserted
-		int last_rank = 0;	// Rank of last frequency inserted
+	int last_freq = 0;	// Last frequency inserted
+	int last_rank = 0;	// Rank of last frequency inserted
 
         for (const auto& p : freq2lex) {
             // p.first is frequency, p.second is lexeme
@@ -98,6 +101,10 @@ void frequency_handler::finish_prepare()
     constexpr int F_LEXEME_IN_LEX = 4; //  Lexeme in lexicon
     
     for (int lang_index=0; lang_index<2; ++lang_index) { // lang_index is 0 for Hebrew, 1 for Aramaic
+        Frequency_data& fd = freq_info[lang_index];
+	bool please_contact_the_maintaner = false;
+	
+
         string lexfilename{lang_index==0 ? "ETCBC4-frequency4.04_progression-heb.csv" : "ETCBC4-frequency4.04_progression-aram.csv"};
         rapidcsv::Document lexfile;
 
@@ -110,30 +117,48 @@ void frequency_handler::finish_prepare()
             exit(1);
         }
 
-	// Set the 
         for (size_t rix=0; rix<lexfile.GetRowCount(); ++rix) {
             vector<string> v = lexfile.GetRow<string>(rix);
 
-            // cout << "lexfilename = '" << lexfilename << "' +++ " << v[F_LEXEME_IN_LEX] << " +++ " << freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX]) << " +++" << std::endl;
+            // cout << "lexfilename = '" << lexfilename << "' +++ " << v[F_LEXEME_IN_LEX] << " +++ " << fd.rank.count(v[F_LEXEME_IN_LEX]) << " +++" << std::endl;
 
-	    if (freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX])==0) {
-		std::cerr << "WARNING: The lexeme '" << v[F_LEXEME_IN_LEX] << "' occurs in the file\n         '" << lexfilename << "',\n         but it does not occur in the actual bhs4 database.\n\n         Please contact the maintainer of the file\n         '" << lexfilename << "'\n         in order to have this fixed. The maintainer of this file is probably\n         Oliver Glanz.\n\n" << std::endl;
+	    if (fd.rank.count(v[F_LEXEME_IN_LEX])==0) {
+		cerr << "WARNING: The lexeme '" << v[F_LEXEME_IN_LEX] << "' occurs in the file\n         '" << lexfilename << "',\n         but it does not occur in the actual bhs4 database." << endl;
+		
+		please_contact_the_maintaner = true;
 	    } else {
 
 		// The lexeme should have been set in
-		// freq_info[lang_index].rank, and its value should be
+		// fd.rank, and its value should be
 		// greater than 0.
 		// Assert that this is so.
-		assert(freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX])>0);
+		assert(fd.rank.count(v[F_LEXEME_IN_LEX])>0);
 
 		// The lexeme should not yet have an entry in
-		// freq_info[lang_index].fa_order.
+		// fd.fa_order.
 		// Assert that this is so.
-		assert(freq_info[lang_index].fa_order.count(v[F_LEXEME_IN_LEX])==0);
+		assert(fd.fa_order.count(v[F_LEXEME_IN_LEX])==0);
 
-		freq_info[lang_index].fa_order[v[F_LEXEME_IN_LEX]] = v[F_FA_ORDER];
+		fd.fa_order[v[F_LEXEME_IN_LEX]] = v[F_FA_ORDER];
 	    }
         }
+
+	// Ensure that all lexemes in fd.total have
+	// an entry in fd.fa_order
+        for (const auto& me : fd.total) {
+	    string lex = me.first;
+
+	    if (fd.fa_order.count(lex) == 0) {
+		cerr << "ERROR: lexeme '" << lex << "' is missing in file '" << lexfilename << "'. Faking it for now just using the rank." << endl;
+		fd.fa_order[lex] = fd.rank[lex];
+
+		please_contact_the_maintaner = true;		
+	    }
+	}
+
+	if (please_contact_the_maintaner) {
+	    cerr << "WARNING/ERROR: Something went wrong in reading '" << lexfilename << "'.\nPlease contact the maintainer of this file, giving them the WARNING / ERROR message(s) above.\n" << endl;
+	}
     }
 }
 
@@ -148,6 +173,8 @@ string frequency_handler::define_features()
  
 string frequency_handler::update_object(const map<string,string>& fmap)
 {
+    cout << "... self = " << fmap.at("self") << " ... monad = " << fmap.at("monad") << " lex = " << fmap.at("lex") << endl;
+    
     if (fmap.at("language")=="Hebrew")
         return
             "    lexeme_occurrences := " + to_string(freq_info[0].total.at(fmap.at("lex")))  + ";\n"
