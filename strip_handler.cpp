@@ -20,6 +20,8 @@ class strip_handler : public handler {
     virtual void prepare_object(map<string,string>& fmap) override;
     virtual string define_features() override;
     virtual string update_object(const map<string,string>&) override;
+    virtual string handler_name() const override;
+    
 
   private:
     string strip_cant(string text);
@@ -269,4 +271,10 @@ string strip_handler::update_object(const map<string,string>& fmap)
         "    g_word_nocant_utf8 := \""  + fmap.at("g_word_nocant_utf8")  + "\";\n"
         "    g_word_nostress_utf8 := \""+ fmap.at("g_word_nostress_utf8")+ "\";\n"
         "    g_word_cons_utf8 := \""    + fmap.at("g_word_cons_utf8")    + "\";\n";
+}
+
+
+string strip_handler::handler_name() const
+{
+    return "strip_handler";
 }

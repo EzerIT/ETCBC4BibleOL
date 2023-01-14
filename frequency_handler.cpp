@@ -24,7 +24,8 @@ class frequency_handler : public handler {
     virtual void finish_prepare() override;
     virtual string define_features() override;
     virtual string update_object(const map<string,string>&) override;
-
+    virtual string handler_name() const override;
+    
   private:
     struct Frequency_data {
         map<string,int> total;        // Maps lexeme to frequency
@@ -158,3 +159,9 @@ string frequency_handler::update_object(const map<string,string>& fmap)
             "    frequency_rank := "     + to_string(freq_info[1].rank.at(fmap.at("lex")))   + ";\n"
             "    fa_order := "           + freq_info[1].fa_order.at(fmap.at("lex"))          + ";\n";
 }
+
+string frequency_handler::handler_name() const
+{
+    return "frequency_handler";
+}
+

@@ -14,6 +14,7 @@ class suffix_handler : public handler {
     virtual void list_features(set<string>&) override;
     virtual string pre_create() override;
     virtual string update_object(const map<string,string>&) override;
+    virtual string handler_name() const override;
 };
 
 
@@ -69,4 +70,9 @@ string suffix_handler::update_object(const map<string,string>& fmap)
         }
     }
     return "";
+}
+
+string suffix_handler::handler_name() const
+{
+    return "suffix_handler";
 }

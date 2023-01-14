@@ -39,6 +39,7 @@ class translit_handler : public handler {
     virtual void finish_prepare() override;
     virtual string define_features() override;
     virtual string update_object(const map<string,string>&) override;
+    virtual string handler_name() const override;
 
   private:
     // Transliteration context. We need five words (two before and two after the current one)
@@ -206,4 +207,11 @@ string translit_handler::update_object(const map<string,string>& fmap)
         "    g_uvf_translit := \""            + translits.g_uvf_translit            + "\";\n" 
         "    g_voc_lex_translit := \""        + translits.g_voc_lex_translit        + "\";\n" 
         "    qere_translit := \""             + translits.qere_translit             + "\";\n"; 
+}
+
+
+
+string translit_handler::handler_name() const
+{
+    return "translit_handler";
 }

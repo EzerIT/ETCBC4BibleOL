@@ -13,6 +13,7 @@ class monad_feature_handler : public handler {
   public:
     virtual string define_features() override;
     virtual string update_object(const map<string,string>&) override;
+    virtual string handler_name() const override;
 };
 
 
@@ -33,3 +34,10 @@ string monad_feature_handler::update_object(const map<string,string>& fmap)
 {
     return "    monad_num := " + fmap.at("monad") + ";\n";
 }
+
+string monad_feature_handler::handler_name() const
+{
+    return "monad_feature_handler";
+}
+
+    
