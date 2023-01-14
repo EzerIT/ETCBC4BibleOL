@@ -51,10 +51,6 @@ ETCBC4_words.db: worddb.sql
 	rm -f $@
 	sqlite3 $@ < $+
 
-csv.o:	csv-parser-master/csv.cc
-	$(CXX) $(CXXFLAGS) -c $+
-
-
 hintsdb: $(OBJFILES3)
 	$(CXX) $(CXXFLAGS) $(LDLIBS) -o $@ $+ $(LDFLAGS)
 
