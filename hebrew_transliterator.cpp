@@ -668,6 +668,8 @@ string suffix_transliterate(const string& heb_suffix)
 	{ "\u05c3 \u05e0 \u05e1 ", ": " }, // Sof pasuq, nun, samekh
 	{ "\u05c3 \u05e0 \u05e4 ", ": " }, // Sof pasuq, nun, pe
 	{ " \u05c0 ",              " "  }, // Paseq
+	{ "\u05c0",                ""   }, // Paseq
+	
     };
 
     if (!suffixmap.contains(heb_suffix)) {
