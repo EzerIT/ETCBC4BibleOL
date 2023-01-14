@@ -173,7 +173,7 @@ string frequency_handler::define_features()
  
 string frequency_handler::update_object(const map<string,string>& fmap)
 {
-    cout << "... self = " << fmap.at("self") << " ... monad = " << fmap.at("monad") << " lex = " << fmap.at("lex") << endl;
+    // cout << "... self = " << fmap.at("self") << " ... monad = " << fmap.at("monad") << " lex = " << fmap.at("lex") << endl;
     
     if (fmap.at("language")=="Hebrew")
         return
