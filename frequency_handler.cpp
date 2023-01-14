@@ -117,7 +117,7 @@ void frequency_handler::finish_prepare()
             // cout << "lexfilename = '" << lexfilename << "' +++ " << v[F_LEXEME_IN_LEX] << " +++ " << freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX]) << " +++" << std::endl;
 
 	    if (freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX])==0) {
-		std::cerr << "WARNING: The lexeme '" << v[F_LEXEME_IN_LEX] << "' occurs in the file '" << lexfilename << "', but it does not occur in the actual bhs4 database.\nPlease contact the maintainer of the file '" << lexfilename << "'\nin order to have this fixed. The maintainer of this file is probably\nOliver Glanz." << std::endl;
+		std::cerr << "WARNING: The lexeme '" << v[F_LEXEME_IN_LEX] << "' occurs in the file\n         '" << lexfilename << "',\n         but it does not occur in the actual bhs4 database.\n\n         Please contact the maintainer of the file\n         '" << lexfilename << "'\n         in order to have this fixed. The maintainer of this file is probably\n         Oliver Glanz.\n\n" << std::endl;
 	    } else {
 
 		// The lexeme should have been set in
