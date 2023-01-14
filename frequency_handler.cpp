@@ -123,7 +123,7 @@ void frequency_handler::finish_prepare()
             // cout << "lexfilename = '" << lexfilename << "' +++ " << v[F_LEXEME_IN_LEX] << " +++ " << fd.rank.count(v[F_LEXEME_IN_LEX]) << " +++" << std::endl;
 
 	    if (fd.rank.count(v[F_LEXEME_IN_LEX])==0) {
-		cerr << "WARNING: The lexeme '" << v[F_LEXEME_IN_LEX] << "' occurs in the file\n         '" << lexfilename << "',\n         but it does not occur in the actual bhs4 database." << endl;
+		cerr << "    WARNING: The lexeme '" << v[F_LEXEME_IN_LEX] << "' occurs in " << lexfilename << ", but not in the actual database." << endl;
 		
 		please_contact_the_maintaner = true;
 	    } else {
@@ -149,7 +149,7 @@ void frequency_handler::finish_prepare()
 	    string lex = me.first;
 
 	    if (fd.fa_order.count(lex) == 0) {
-		cerr << "ERROR: lexeme '" << lex << "' is missing in file '" << lexfilename << "'. Faking it for now just using the rank." << endl;
+		cerr << "    ERROR: lexeme '" << lex << "' is missing in file '" << lexfilename << "'. Faking it for now just using the rank." << endl;
 		fd.fa_order[lex] = fd.rank[lex];
 
 		please_contact_the_maintaner = true;		
@@ -157,7 +157,7 @@ void frequency_handler::finish_prepare()
 	}
 
 	if (please_contact_the_maintaner) {
-	    cerr << "WARNING/ERROR: Something went wrong in reading '" << lexfilename << "'.\nPlease contact the maintainer of this file, giving them the WARNING / ERROR message(s) above.\n" << endl;
+	    cerr << "\n    WARNING/ERROR: Something went wrong in reading '" << lexfilename << "'.\nPlease contact the maintainer of this file, giving them the WARNING / ERROR message(s) above.\n" << endl;
 	}
     }
 }
