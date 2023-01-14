@@ -13,10 +13,14 @@ DEPFILES=$(OBJFILES:.o=.d) $(OBJFILES2:.o=.d) $(OBJFILES3:.o=.d)
 CXX=c++
 
 CXXFLAGS=-std=c++20 -MMD -O3 -I /usr/local/include
-LDLIBS= -L /usr/local/lib 
-LDFLAGS= -lpcrecpp -lemdros_amalgamation -lpthread -ldl
+
+EMDROS_LIBS = $(shell pkg-config --libs emdros)
+
+LDLIBS= -L /usr/local/lib
+LDFLAGS= -lpcrecpp $(EMDROS_LIBS) -lpthread -ldl
 
 BHS4=../bhs4/bhs4  # Location of source Emdros database
+
 
 all: ETCBC4 ETCBC4_words.db ETCBC4_hints.db
 
