@@ -292,6 +292,7 @@ int main(int argc, char **argv)
 
 	cout << "Generating MQL in file '" << output_filename << "' ..." << endl;
 
+	cout << "... Doing pre_create() and define_features() for [word]... " << flush;
         if (!has_defined_features) {
             has_defined_features = true;
         
@@ -305,12 +306,15 @@ int main(int argc, char **argv)
                 ofile << h->define_features();
             ofile << "] GO\n\n";
         }
-        
+	cout << "Done!" << endl;
+
+	
         ofile << "\n// " << book << "\n\n"
               << "BEGIN TRANSACTION GO\n";
 
         count = 0;
 
+	cout << "... Doing update_object() for [word]... " << flush;
         for (auto& fm : feature_maps) {
             if (count++ == 1000) {
                 ofile << "COMMIT TRANSACTION GO\n"
@@ -325,6 +329,7 @@ int main(int argc, char **argv)
                 ofile << h->update_object(fm.second);
             ofile << "] GO\n";
         }
+	cout << "Done!" << endl;
 
         ofile << "COMMIT TRANSACTION GO\n";
     }
