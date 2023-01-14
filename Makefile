@@ -1,6 +1,18 @@
 # Copyright © 2022 Claus Tøndering.
 # Released under an MIT License.
 
+#
+# BOOKS_TO_MAKE should either be empty, or contain a list of
+# book names on which to run emdros_update.
+#
+# The available book names are found in emdros_update.cpp.
+# Look for the global variable 'allbooks'.
+#
+
+BOOKS_TO_MAKE = 
+#BOOKS_TO_MAKE = Numeri
+
+
 OBJFILES=emdros_iterators.o emdros_updater.o frequency_handler.o \
 verb_stem_handler.o verb_class.o verb_class_handler.o strip_handler.o \
 monad_feature_handler.o translit_handler.o suffix_handler.o hebrew_transliterator.o util.o
@@ -22,13 +34,18 @@ LDFLAGS= -lpcrecpp $(EMDROS_LIBS) -lpthread -ldl
 BHS4=../bhs4/bhs4  # Location of source Emdros database
 
 
+# Don't let make(1) delete update.mql if emdros_updater aborts /
+# segfaults.
+#.PRECIOUS: update.mql
+
+
 all: ETCBC4 ETCBC4_words.db ETCBC4_hints.db
 
 emdros_updater:	$(OBJFILES)
 	$(CXX) $(CXXFLAGS) $(LDLIBS) -o $@ $+ $(LDFLAGS)
 
 update.mql:	emdros_updater $(BHS4)
-	./emdros_updater $(BHS4) $@
+	./emdros_updater $(BHS4) $@  $(BOOKS_TO_MAKE) 
 
 ETCBC4:	update.mql
 	cp $(BHS4) $@
