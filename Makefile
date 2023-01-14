@@ -2,15 +2,57 @@
 # Released under an MIT License.
 
 #
-# BOOKS_TO_MAKE should either be empty, or contain a list of
-# book names on which to run emdros_update.
+# The list of books available in the ETCBC BHS4 database.
 #
-# The available book names are found in emdros_update.cpp.
-# Look for the global variable 'allbooks'.
-#
+ALL_BOOKS = Genesis \
+            Exodus \
+            Leviticus \
+            Numeri \
+            Deuteronomium \
+            Josua \
+            Judices \
+            Samuel_I \
+            Samuel_II \
+            Reges_I \
+            Reges_II \
+            Jesaia \
+            Jeremia \
+            Ezechiel \
+            Hosea \
+            Joel \
+            Amos \
+            Obadia \
+            Jona \
+            Micha \
+            Nahum \
+            Habakuk \
+            Zephania \
+            Haggai \
+            Sacharia \
+            Maleachi \
+            Psalmi \
+            Iob \
+            Proverbia \
+            Ruth \
+            Canticum \
+            Ecclesiastes \
+            Threni \
+            Esther \
+            Daniel \
+            Esra \
+            Nehemia \
+            Chronica_I \
+            Chronica_II
 
+
+#
+# BOOKS_TO_MAKE should either be empty, or contain a list of
+# book names on which to run emdros_update. If it is empty,
+# emdros_update will run on all books.
+#
 BOOKS_TO_MAKE = 
-#BOOKS_TO_MAKE = Numeri
+
+
 
 
 OBJFILES=emdros_iterators.o emdros_updater.o frequency_handler.o \
