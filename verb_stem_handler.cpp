@@ -11,6 +11,7 @@ using namespace std;
 class verb_stem_handler : public handler {
   public:
     virtual string pre_create() override;
+    virtual string handler_name() const override;
 };
 
 shared_ptr<handler> make_verb_stem_handler()
@@ -26,3 +27,10 @@ string verb_stem_handler::pre_create()
         "    REMOVE etta\n"
         "} GO\n";
 }
+
+string verb_stem_handler::handler_name() const
+{
+    return "verb_stem_handler";
+}
+
+

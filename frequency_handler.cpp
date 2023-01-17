@@ -24,7 +24,8 @@ class frequency_handler : public handler {
     virtual void finish_prepare() override;
     virtual string define_features() override;
     virtual string update_object(const map<string,string>&) override;
-
+    virtual string handler_name() const override;
+    
   private:
     struct Frequency_data {
         map<string,int> total;        // Maps lexeme to frequency
@@ -57,6 +58,9 @@ void frequency_handler::prepare_object(map<string,string>& fmap)
 
 void frequency_handler::finish_prepare()
 {
+    //
+    // Compute freq_info[...].rank from freq_info[...].total
+    // 
     for (int lang_index=0; lang_index<2; ++lang_index) {
         Frequency_data& fd = freq_info[lang_index];
 
@@ -68,8 +72,8 @@ void frequency_handler::finish_prepare()
         // Use frequencies to generate frequency ranks
 
         int rank = 1;		// Current rank
-		int last_freq = 0;	// Last frequency inserted
-		int last_rank = 0;	// Rank of last frequency inserted
+	int last_freq = 0;	// Last frequency inserted
+	int last_rank = 0;	// Rank of last frequency inserted
 
         for (const auto& p : freq2lex) {
             // p.first is frequency, p.second is lexeme
@@ -91,12 +95,16 @@ void frequency_handler::finish_prepare()
 
     // Fields in the csv file:
     constexpr int F_SECTION		  = 0; //  Section
-	constexpr int F_FA_ORDER	  = 1; //  Frequency+alphabetica order
-	constexpr int F_OCCUR		  = 2; //  Occurrences
-	constexpr int F_ABS_ORDER	  = 3; //  absolut alphabetic order
-	constexpr int F_LEXEME_IN_LEX = 4; //  Lexeme in lexicon
+    constexpr int F_FA_ORDER	  = 1; //  Frequency+alphabetica order
+    constexpr int F_OCCUR		  = 2; //  Occurrences
+    constexpr int F_ABS_ORDER	  = 3; //  absolut alphabetic order
+    constexpr int F_LEXEME_IN_LEX = 4; //  Lexeme in lexicon
     
     for (int lang_index=0; lang_index<2; ++lang_index) { // lang_index is 0 for Hebrew, 1 for Aramaic
+        Frequency_data& fd = freq_info[lang_index];
+	bool please_contact_the_maintaner = false;
+	
+
         string lexfilename{lang_index==0 ? "ETCBC4-frequency4.04_progression-heb.csv" : "ETCBC4-frequency4.04_progression-aram.csv"};
         rapidcsv::Document lexfile;
 
@@ -112,13 +120,45 @@ void frequency_handler::finish_prepare()
         for (size_t rix=0; rix<lexfile.GetRowCount(); ++rix) {
             vector<string> v = lexfile.GetRow<string>(rix);
 
-//            cout << "+++ " << v[F_LEXEME_IN_LEX] << " +++ " << freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX]) << " +++\n";
-            
-            assert(freq_info[lang_index].rank.count(v[F_LEXEME_IN_LEX])>0);
-            assert(freq_info[lang_index].fa_order.count(v[F_LEXEME_IN_LEX])==0);
-            
-            freq_info[lang_index].fa_order[v[F_LEXEME_IN_LEX]] = v[F_FA_ORDER];
+            // cout << "lexfilename = '" << lexfilename << "' +++ " << v[F_LEXEME_IN_LEX] << " +++ " << fd.rank.count(v[F_LEXEME_IN_LEX]) << " +++" << std::endl;
+
+	    if (fd.rank.count(v[F_LEXEME_IN_LEX])==0) {
+		cerr << "    WARNING: The lexeme '" << v[F_LEXEME_IN_LEX] << "' occurs in " << lexfilename << ", but not in the actual database." << endl;
+		
+		please_contact_the_maintaner = true;
+	    } else {
+
+		// The lexeme should have been set in
+		// fd.rank, and its value should be
+		// greater than 0.
+		// Assert that this is so.
+		assert(fd.rank.count(v[F_LEXEME_IN_LEX])>0);
+
+		// The lexeme should not yet have an entry in
+		// fd.fa_order.
+		// Assert that this is so.
+		assert(fd.fa_order.count(v[F_LEXEME_IN_LEX])==0);
+
+		fd.fa_order[v[F_LEXEME_IN_LEX]] = v[F_FA_ORDER];
+	    }
         }
+
+	// Ensure that all lexemes in fd.total have
+	// an entry in fd.fa_order
+        for (const auto& me : fd.total) {
+	    string lex = me.first;
+
+	    if (fd.fa_order.count(lex) == 0) {
+		cerr << "    ERROR: lexeme '" << lex << "' is missing in file '" << lexfilename << "'. Faking it for now just using the rank." << endl;
+		fd.fa_order[lex] = fd.rank[lex];
+
+		please_contact_the_maintaner = true;		
+	    }
+	}
+
+	if (please_contact_the_maintaner) {
+	    cerr << "\n    WARNING/ERROR: Something went wrong in reading '" << lexfilename << "'.\nPlease contact the maintainer of this file, giving them the WARNING / ERROR message(s) above.\n" << endl;
+	}
     }
 }
 
@@ -133,6 +173,8 @@ string frequency_handler::define_features()
  
 string frequency_handler::update_object(const map<string,string>& fmap)
 {
+    // cout << "... self = " << fmap.at("self") << " ... monad = " << fmap.at("monad") << " lex = " << fmap.at("lex") << endl;
+    
     if (fmap.at("language")=="Hebrew")
         return
             "    lexeme_occurrences := " + to_string(freq_info[0].total.at(fmap.at("lex")))  + ";\n"
@@ -144,3 +186,9 @@ string frequency_handler::update_object(const map<string,string>& fmap)
             "    frequency_rank := "     + to_string(freq_info[1].rank.at(fmap.at("lex")))   + ";\n"
             "    fa_order := "           + freq_info[1].fa_order.at(fmap.at("lex"))          + ";\n";
 }
+
+string frequency_handler::handler_name() const
+{
+    return "frequency_handler";
+}
+

@@ -1,6 +1,60 @@
 # Copyright © 2022 Claus Tøndering.
 # Released under an MIT License.
 
+#
+# The list of books available in the ETCBC BHS4 database.
+#
+ALL_BOOKS = Genesis \
+            Exodus \
+            Leviticus \
+            Numeri \
+            Deuteronomium \
+            Josua \
+            Judices \
+            Samuel_I \
+            Samuel_II \
+            Reges_I \
+            Reges_II \
+            Jesaia \
+            Jeremia \
+            Ezechiel \
+            Hosea \
+            Joel \
+            Amos \
+            Obadia \
+            Jona \
+            Micha \
+            Nahum \
+            Habakuk \
+            Zephania \
+            Haggai \
+            Sacharia \
+            Maleachi \
+            Psalmi \
+            Iob \
+            Proverbia \
+            Ruth \
+            Canticum \
+            Ecclesiastes \
+            Threni \
+            Esther \
+            Daniel \
+            Esra \
+            Nehemia \
+            Chronica_I \
+            Chronica_II
+
+
+#
+# BOOKS_TO_MAKE should either be empty, or contain a list of
+# book names on which to run emdros_update. If it is empty,
+# emdros_update will run on all books.
+#
+BOOKS_TO_MAKE = 
+
+
+
+
 OBJFILES=emdros_iterators.o emdros_updater.o frequency_handler.o \
 verb_stem_handler.o verb_class.o verb_class_handler.o strip_handler.o \
 monad_feature_handler.o translit_handler.o suffix_handler.o hebrew_transliterator.o util.o
@@ -22,13 +76,18 @@ LDFLAGS= -lpcrecpp $(EMDROS_LIBS) -lpthread -ldl
 BHS4=../bhs4/bhs4  # Location of source Emdros database
 
 
+# Don't let make(1) delete update.mql if emdros_updater aborts /
+# segfaults.
+#.PRECIOUS: update.mql
+
+
 all: ETCBC4 ETCBC4_words.db ETCBC4_hints.db
 
 emdros_updater:	$(OBJFILES)
 	$(CXX) $(CXXFLAGS) $(LDLIBS) -o $@ $+ $(LDFLAGS)
 
 update.mql:	emdros_updater $(BHS4)
-	./emdros_updater $(BHS4) $@
+	./emdros_updater $(BHS4) $@  $(BOOKS_TO_MAKE) 
 
 ETCBC4:	update.mql
 	cp $(BHS4) $@

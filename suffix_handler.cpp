@@ -14,6 +14,7 @@ class suffix_handler : public handler {
     virtual void list_features(set<string>&) override;
     virtual string pre_create() override;
     virtual string update_object(const map<string,string>&) override;
+    virtual string handler_name() const override;
 };
 
 
@@ -53,20 +54,35 @@ string suffix_handler::update_object(const map<string,string>& fmap)
     else if (fmap.at("language")=="Aramaic") { // Fix errors in gender suffix
 
         if (fmap.at("g_prs")=="+AH.") {
-            assert(fmap.at("suffix_gender")=="m");
-            assert(fmap.at("prs_gn")=="m");
-            return
-                "    suffix_gender := f;\n"
-                "    prs_gn := f;\n";
+	    if (fmap.at("suffix_gender") == "f"
+		&& fmap.at("prs_gn") == "f") {
+		// It is already correct.
+	    } else {
+		assert(fmap.at("suffix_gender")=="m");
+		assert(fmap.at("prs_gn")=="m");
+		return
+		    "    suffix_gender := f;\n"
+		    "    prs_gn := f;\n";
+	    }
         }
 
         else if (fmap.at("g_prs")=="+;H.") {
-            assert(fmap.at("suffix_gender")=="f");
-            assert(fmap.at("prs_gn")=="f");
-            return
-                "    suffix_gender := m;\n"
-                "    prs_gn := m;\n";
-        }
+	    if (fmap.at("suffix_gender") == "m"
+		&& fmap.at("prs_gn") == "m") {
+		// It is already correct.
+	    } else {
+		assert(fmap.at("suffix_gender")=="f");
+		assert(fmap.at("prs_gn")=="f");
+		return
+		    "    suffix_gender := m;\n"
+		    "    prs_gn := m;\n";
+	    }
+	}
     }
     return "";
+}
+
+string suffix_handler::handler_name() const
+{
+    return "suffix_handler";
 }

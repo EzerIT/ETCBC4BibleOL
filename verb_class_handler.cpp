@@ -18,7 +18,7 @@ class verb_class_handler : public handler {
     virtual string pre_create() override;
     virtual string define_features() override;
     virtual string update_object(const map<string,string>&) override;
-
+    virtual string handler_name() const override;
   private:
     string normalize(const string& verb);
     string classify(bool is_hebrew, const string& verb);
@@ -129,3 +129,10 @@ string verb_class_handler::update_object(const map<string,string>& fmap)
 
     return "    verb_class := (" + classify(fmap.at("language")=="Hebrew",fmap.at("lex")) + ");\n";
 }
+
+string verb_class_handler::handler_name() const
+{
+    return "verb_class_handler";
+}
+
+    

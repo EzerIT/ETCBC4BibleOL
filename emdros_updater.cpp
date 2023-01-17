@@ -95,14 +95,27 @@ vector<string> allbooks {
 
 int main(int argc, char **argv)
 {
-    if (argc!=3) {
-        cerr << "Usage: emdros_updater <database name> <output file>\n";
+    if (argc<3) {
+        cerr << "Usage: emdros_updater <database name> <output file> [<bookname1> <bookname2> ...]\n";
         return 1;
     }
 
-    ofstream ofile{argv[2]};
+    std::string output_filename = argv[2];
+
+    std::vector<std::string> book_names;
+
+    if (argc == 3) {
+	book_names = allbooks;
+    } else {
+	int arg_index;
+	for (arg_index = 3; arg_index < argc; ++arg_index) {
+	    book_names.push_back(std::string(argv[arg_index]));
+	}
+    }
+
+    ofstream ofile{output_filename.c_str()};
     if (!ofile) {
-        cerr << "Cannot open " << argv[2] << endl;
+        cerr << "Cannot open " << output_filename << endl;
         return 1;
     }
 
@@ -119,6 +132,8 @@ int main(int argc, char **argv)
     //=======================================================
     // Gather frequency information for entire Old Testament
     //=======================================================
+
+    cout << "Gathering required frequency information for the entire Old Testament..." << endl;
 
     shared_ptr<handler> freq_hand = make_frequency_handler();
     {
@@ -166,11 +181,13 @@ int main(int argc, char **argv)
 
         // *freq_hand now contains frequencies and frequency ranks for all lexemes
     }
+    cout << "Done gatering frequency information for the entire Old Testament!\n" << endl;
 
 
     // The remainder is done per book of the OT
     bool has_defined_features = false;
-    for (string& book : allbooks) {
+
+    for (string& book : book_names) {
         // Create handlers. The frequency handler is being reused from above
         // Alas, we cannot use unique_ptr in handlers, because initializer list elemets must be copyable
 
@@ -189,7 +206,10 @@ int main(int argc, char **argv)
         //==================================================
         // Gather information
         //==================================================
-    
+
+	cout << "Gathering required information for " << book << " ..." << endl;
+
+	cout << "... Building MQL request ... " << flush;
         set<string> required_features{"self"}; // We always need "self"
         freq_hand->list_features(required_features);
         for (const auto& h : handlers)
@@ -197,6 +217,10 @@ int main(int argc, char **argv)
 
         map<string,int> simap;
         string mql_request = build_request(required_features, simap, book);
+	cout << "Done!" << endl;
+
+	
+	cout << "... Executing MQL request ... " << flush;
         if (!EE.executeString(mql_request, bResult, false, true))
             return 1;
 
@@ -204,8 +228,9 @@ int main(int argc, char **argv)
             cerr << "ERROR: Result is not sheaf\n";
             return 1;
         }
+	cout << "Done!" << endl;
 
-
+	cout << "... Harvesting the results from the sheaf ... " << flush;
         map<int, map<string, string>> feature_maps; // Maps id_d to feature=>value map
 
         for (StrawOk s_outer : SheafOk{EE.getSheaf()}) {
@@ -233,12 +258,19 @@ int main(int argc, char **argv)
                 }
             }
         }
-
+	cout << "Done!" << endl;
+	
+	cout << "... Preparing objects for " << book << " ... " << endl;
         int count = 0, fullcount = 0;
         int mapsize = feature_maps.size();
         for (auto& fm : feature_maps) {
-            for (const auto& h : handlers)
+	    // cout << "... id_d = " << fm.first << " verse_label = " << fm.second["verse_label"] << " monad = " << fm.second["monad"] << " lex = " << fm.second["lex"] << endl;
+	    
+            for (const auto& h : handlers) {
+		// cout << "handler = " << h->handler_name() << endl;
+		
                 h->prepare_object(fm.second);
+	    }
 
             ++fullcount;
             if (count++ == 1000) {
@@ -248,13 +280,22 @@ int main(int argc, char **argv)
         }
         cout << "100%" << endl;  // Just to look pretty
 
+	cout << "Done!" << endl;
+
+	cout << "... Finishing the preparation of objects for " << book << " ... " << flush;
         for (const auto& h : handlers)
             h->finish_prepare();
+	cout << "Done!" << endl;
 
+	cout << "Done gathering required information for " << book << ".\n" << endl;
+	
         //==================================================
         // Generate MQL
         //==================================================
-    
+
+	cout << "Generating MQL for " << book << " in file '" << output_filename << "' ..." << endl;
+
+	cout << "... Generating MQL by calling pre_create() and define_features() for [word]... " << flush;
         if (!has_defined_features) {
             has_defined_features = true;
         
@@ -268,12 +309,15 @@ int main(int argc, char **argv)
                 ofile << h->define_features();
             ofile << "] GO\n\n";
         }
-        
+	cout << "Done!" << endl;
+
+	
         ofile << "\n// " << book << "\n\n"
               << "BEGIN TRANSACTION GO\n";
 
         count = 0;
 
+	cout << "... Generating MQL by calling update_object() for [word]... " << flush;
         for (auto& fm : feature_maps) {
             if (count++ == 1000) {
                 ofile << "COMMIT TRANSACTION GO\n"
@@ -282,14 +326,28 @@ int main(int argc, char **argv)
                 count = 0;
             }
 
+	    // cout << "    word.id_d = " << fm.first;
             ofile << "UPDATE OBJECT BY ID_DS = " << fm.first << " [word\n";
+
+	    // cout << ", ... calling freq_hand->update_object(), ..." << flush;
+	    
             ofile << freq_hand->update_object(fm.second);
-            for (const auto& h : handlers)
+
+	    // cout << ", Done! Now doing other handlers->update_object() ..." << flush;
+
+	    for (const auto& h : handlers)
                 ofile << h->update_object(fm.second);
             ofile << "] GO\n";
+
+	    // cout << "Done!" << endl;
+	    
         }
+	cout << "Done!" << endl;
+
 
         ofile << "COMMIT TRANSACTION GO\n";
+
+	cout << "Done generating MQL.\n" << endl;
     }
     ofile << "\nVACUUM DATABASE ANALYZE GO\n";
 }

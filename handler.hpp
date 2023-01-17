@@ -28,6 +28,10 @@ class handler {
 
     // Returns MQL code definining values of features in fmap
     virtual std::string update_object(const std::map<std::string,std::string>& fmap) { return ""; }
+
+    // Returns the name of the handler. Useful, e.g., for displaying
+    // debugging information about which handler we are in right now.
+    virtual std::string handler_name() const { return ""; };
 };
 
 #endif // _HANDLER_HPP
