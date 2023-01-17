@@ -11,8 +11,7 @@ CLEANFILES = $(TEX_FILE:.tex=.aux) \
 all: $(PDF_FILE)
 
 $(PDF_FILE): $(TEX_FILE) Makefile
-	xelatex $(TEX_FILE)
-	xelatex $(TEX_FILE)
+	rubber -f -d -m xelatex $(TEX_FILE)
 
 clean:
 	rm -f $(CLEANFILES)

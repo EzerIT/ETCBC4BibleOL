@@ -60,7 +60,7 @@ pdftitle={Generating ETCBC4}
 %%% Font matter %%%
 \title{Generating ETCBC4}
 \author{Claus Tøndering}
-\date{13 January 2023}
+\date{17 January 2023}
 
 
 \begin{document}
@@ -281,15 +281,24 @@ The C++ source code for \emph{hintsdb} is compiled.
 
 \section{Executing \emph{hintsdb}}
 
-\noindent \textbf{Input:} The ETCBC4 database.
+\noindent \textbf{Inputs:}
+\begin{itemize}
+\item The ETCBC4 database
+\item \texttt{BibleOL\_verbal-ambiguity-project\_v1.45-heb.csv}
+\item \texttt{BibleOL\_verbal-ambiguity-project\_v1.45-aram.csv}
+\end{itemize}
 
 \noindent \textbf{Output:} The \texttt{ETCBC4\_hints.db} database.
 
 \vspace{1ex}
 
 The \emph{hintsdb} program is executed. I creates the so-called ``hints database''. For information
-about this database, see the chapter \emph{Hints} in the Bible OL technical
-documentation.
+about this database, see the chapter \emph{Hints} in the Bible OL technical documentation.
+
+The files \texttt{BibleOL\_verbal-ambiguity-project\_v1.45-*.csv} are taken from the Excel file
+\texttt{BibleOL\_verbal-ambiguity-project\_v1.45.xlsx} created by Oliver Glanz. They contain information
+about various possible interpretations of a particular verbal form.
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
