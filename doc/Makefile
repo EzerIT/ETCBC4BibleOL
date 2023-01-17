@@ -5,6 +5,8 @@ PDF_FILE = $(TEX_FILE:.tex=.pdf)
 CLEANFILES = $(TEX_FILE:.tex=.aux) \
              $(TEX_FILE:.tex=.log) \
              $(TEX_FILE:.tex=.out) \
+             $(TEX_FILE:.tex=.toc) \
+             $(TEX_FILE:.tex=.rubbercache) \
              missfont.log \
              *~
 
