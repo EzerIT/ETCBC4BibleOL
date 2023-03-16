@@ -20,10 +20,10 @@ using namespace std;
 enum class cols {
     original_order,book,chapter,verse,lex,verb_classes,verb_classes_correction,
     g_word_nocant,not_usable_for_exercises_because_kq,g_word_nocant_utf8,
-    ps1,nu1,gn1,vt1,vs1,suffix_person1,suffix_number1,suffix_gender1,
-    ps2,nu2,gn2,vt2,vs2,suffix_person2,suffix_number2,suffix_gender2,
-    ps3,nu3,gn3,vt3,vs3,suffix_person3,suffix_number3,suffix_gender3,
-    ps4,nu4,gn4,vt4,vs4,suffix_person4,suffix_number4,suffix_gender4
+    ps1,nu1,gn1,vt1,vs1,suffix_person1,suffix_number1,suffix_gender1,st1,
+    ps2,nu2,gn2,vt2,vs2,suffix_person2,suffix_number2,suffix_gender2,st2,
+    ps3,nu3,gn3,vt3,vs3,suffix_person3,suffix_number3,suffix_gender3,st3,
+    ps4,nu4,gn4,vt4,vs4,suffix_person4,suffix_number4,suffix_gender4,st4
 };
 
 string at(const vector<string>& r, int c)
@@ -180,17 +180,17 @@ class selector {
 
   private:
     // This identifies the feature differentiators by order of relevance.
-    inline static array feat_diff1{cols::ps1, cols::gn1, cols::nu1, cols::vt1, cols::vs1, cols::suffix_person1, cols::suffix_number1, cols::suffix_gender1};
-    inline static array feat_diff2{cols::ps2, cols::gn2, cols::nu2, cols::vt2, cols::vs2, cols::suffix_person2, cols::suffix_number2, cols::suffix_gender2};
-    inline static array feat_diff3{cols::ps3, cols::gn3, cols::nu3, cols::vt3, cols::vs3, cols::suffix_person3, cols::suffix_number3, cols::suffix_gender3};
-    inline static array feat_diff4{cols::ps4, cols::gn4, cols::nu4, cols::vt4, cols::vs4, cols::suffix_person4, cols::suffix_number4, cols::suffix_gender4};
+    inline static array feat_diff1{cols::ps1, cols::gn1, cols::nu1, cols::vt1, cols::vs1, cols::suffix_person1, cols::suffix_number1, cols::suffix_gender1, cols::st1};
+    inline static array feat_diff2{cols::ps2, cols::gn2, cols::nu2, cols::vt2, cols::vs2, cols::suffix_person2, cols::suffix_number2, cols::suffix_gender2, cols::st2};
+    inline static array feat_diff3{cols::ps3, cols::gn3, cols::nu3, cols::vt3, cols::vs3, cols::suffix_person3, cols::suffix_number3, cols::suffix_gender3, cols::st3};
+    inline static array feat_diff4{cols::ps4, cols::gn4, cols::nu4, cols::vt4, cols::vs4, cols::suffix_person4, cols::suffix_number4, cols::suffix_gender4, cols::st4};
 
     // This identifies the index into feat_diffX for features with 2 or 3 main values:
     inline static set<int> twovalues{1,7}; // gender, suffix_gender
-    inline static set<int> threevalues{0,2,5,6}; // person, number, suffix_person, suffix_number
+    inline static set<int> threevalues{0,2,5,6,8}; // person, number, suffix_person, suffix_number, state
     
     // Translates int(feat_diff) to string
-    inline static array feat_diff2string{"ps"s, "gn"s, "nu"s, "vt"s, "vs"s, "suffix_person"s, "suffix_number"s, "suffix_gender"s};
+    inline static array feat_diff2string{"ps"s, "gn"s, "nu"s, "vt"s, "vs"s, "suffix_person"s, "suffix_number"s, "suffix_gender"s, "st"s};
 
     static bool alldiff(const string& s1, const string& s2) {
         return s1!=s2 && s1!="unknown" && s2!="unknown";
@@ -245,12 +245,13 @@ int main(int argc, char **argv)
     bool bResult{false};
 
     for (const string& lang : { "Hebrew", "Aramaic" }) {
+        cerr << "---------------------------------" << lang << "-----------------------------\n";
         rapidcsv::Document csv;
         int csv_row = 0;
         
         string csvfile{lang=="Hebrew"
-            ? "BibleOL_verbal-ambiguity-project_v1.45-heb.csv"
-            : "BibleOL_verbal-ambiguity-project_v1.45-aram.csv"};
+            ? "BibleOL_verbal-ambiguity-project_v1.48-heb.csv"
+            : "BibleOL_verbal-ambiguity-project_v1.48-aram.csv"};
 
         try {
             csv.Load(csvfile);
@@ -288,20 +289,20 @@ int main(int argc, char **argv)
             }
 
             vector<string> row = csv.GetRow<string>(csv_row++);
-        
-            if (g_word_nocant != at(row,cols::g_word_nocant)) {
-                cerr << "Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << '\n'
+
+            // For Aramaic column cols:g_word_nocant has a different interpretation, so we just check
+            // this column in the Hebrew case
+            if (lang=="Hebrew" && g_word_nocant != at(row,cols::g_word_nocant)) {
+                cerr << "Warning: Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << '\n'
                      << "Spreadsheet has " << at(row,cols::g_word_nocant)
                      << " Emdros has " << g_word_nocant << '\n';
-                return 1;
             }
 
             for (int i=0; i<8; ++i) {
                 if (features[i] != at(row,int(cols::ps1) + i)) {
-                    cerr << "Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << " word is " << g_word_nocant << '\n'
+                    cerr << "Warning: Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << " word is " << g_word_nocant << '\n'
                          << "Spreadsheet has feature " << i << "=" << at(row,int(cols::ps1)+i)
                          << " Emdros has " << features[i] << '\n';
-//                return 1;
                 }
             }
 
