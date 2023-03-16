@@ -16,3 +16,4 @@ build_aram_lex_file
 build_heb_es_lex_file
 aram_en.csv
 obsolete
+make_sequence_csv

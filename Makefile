@@ -61,8 +61,9 @@ monad_feature_handler.o translit_handler.o suffix_handler.o hebrew_transliterato
 
 OBJFILES2=worddb.o emdros_iterators.o
 OBJFILES3=hintsdb.o emdros_iterators.o util.o
+OBJFILES4=make_sequence_csv.o emdros_iterators.o
 
-DEPFILES=$(OBJFILES:.o=.d) $(OBJFILES2:.o=.d) $(OBJFILES3:.o=.d)
+DEPFILES=$(OBJFILES:.o=.d) $(OBJFILES2:.o=.d) $(OBJFILES3:.o=.d) $(OBJFILES4:.o=.d)
 
 CXX=c++
 
@@ -120,6 +121,12 @@ ETCBC4_hints.db: hintsdb.sql
 	rm -f $@
 	sqlite3 $@ < $+
 
+make_sequence_csv: $(OBJFILES4)
+	$(CXX) $(CXXFLAGS) $(LDLIBS) -o $@ $+ $(LDFLAGS)
+
+sequence_map.csv: make_sequence_csv ETCBC4
+	./make_sequence_csv ETCBC4 $@
+
 testtranslit: hebrew_transliterator.cpp hebrew_transliterator.hpp util.hpp util.o
 	$(CXX) $(CXXFLAGS) $(LDLIBS) -D TEST_TRANSLIT -o $@ $< util.o $(LDFLAGS)
 
@@ -130,7 +137,7 @@ build_heb_es_lex_file: build_heb_es_lex_file.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
 clean:
-	rm -f $(OBJFILES) $(OBJFILES2) $(OBJFILES3) $(DEPFILES) emdros_updater update.mql ETCBC4 ETCBC4_words.db ETCBC4_hints.db hintsdb.sql hintsdb worddb.sql worddb
+	rm -f $(OBJFILES) $(OBJFILES2) $(OBJFILES3) $(DEPFILES) emdros_updater update.mql ETCBC4 ETCBC4_words.db ETCBC4_hints.db hintsdb.sql hintsdb worddb.sql worddb sequence_map.csv
 
 
 -include $(DEPFILES)
