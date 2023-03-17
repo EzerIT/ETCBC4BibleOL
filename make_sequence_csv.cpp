@@ -11,10 +11,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <set>
 #include <map>
 #include <vector>
-#include <memory>
 #include <cassert>
 
 #include "emdros_iterators.hpp"
