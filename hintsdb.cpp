@@ -65,6 +65,16 @@ class selector {
                 else
                     return feat_diff2string.at(i) + "≠" + at(r,col2);
         }
+
+        // We need to allow for "unknown" values
+        for (int i=0; i<feat_diff2.size(); ++i) {
+            cols col1 = feat_diff1[i];
+            cols col2 = feat_diff2[i];
+
+            if (alldiff1u(at(r,col1), at(r,col2)))
+                return feat_diff2string.at(i) + "=" + at(r,col1);
+        }
+
         for (auto rc : r)
             cerr << rc << " ";
         cerr << "INDETERMINATE 1\n";
@@ -84,8 +94,7 @@ class selector {
                     return feat_diff2string.at(i) + "≠" + at(r,col2) + "," + feat_diff2string.at(i) + "≠" + at(r,col3);
         }
 
-        // We do in two situations (Dan 5:20 and Dan 7:19) reach this point.
-        // In that case we look for a value that distinugishes just the primary (correct) option.
+        // If we reach this point, we look for a value that distinguishes just the primary (correct) option.
         // As a matter of fact, we could use this mechanism everywhere, but by now the hints found
         // by the "alldiff" methods are well established, so we'll leave them in place.
 
@@ -94,11 +103,32 @@ class selector {
             cols col2 = feat_diff2[i];
             cols col3 = feat_diff3[i];
         
-            if (partdiff(at(r,col1), at(r,col2), at(r,col3)))
+            if (alldiff23u(at(r,col1), at(r,col2), at(r,col3)))
                 if (threevalues.contains(i) || at(r,col2)!=at(r,col3))
                     return feat_diff2string.at(i) + "=" + at(r,col1);
                 else
                     return feat_diff2string.at(i) + "≠" + at(r,col2);
+        }
+
+        // Indeterminate based on two features, let's allow "unknown" values
+        for (int i=0; i<feat_diff1.size(); ++i) {
+            for (int j=i+1; j<feat_diff1.size(); ++j) {
+            
+                string s1a = at(r, feat_diff1[i]);
+                string s2a = at(r, feat_diff2[i]);
+                string s3a = at(r, feat_diff3[i]);
+                string s1b = at(r, feat_diff1[j]);
+                string s2b = at(r, feat_diff2[j]);
+                string s3b = at(r, feat_diff3[j]);
+
+                string s1 = s1a + "." + s1b;
+                string s2 = s2a + "." + s2b;
+                string s3 = s3a + "." + s3b;
+
+                if (alldiff(s1,s2,s3))
+                    return feat_diff2string.at(i) + "=" + s1a + ","
+                        + feat_diff2string.at(j) + "=" + s1b;
+            }
         }
 
         for (auto rc : r)
@@ -192,23 +222,32 @@ class selector {
     // Translates int(feat_diff) to string
     inline static array feat_diff2string{"ps"s, "gn"s, "nu"s, "vt"s, "vs"s, "suffix_person"s, "suffix_number"s, "suffix_gender"s, "st"s};
 
+    // Test if s1!=s2 and neither is "unknown"
     static bool alldiff(const string& s1, const string& s2) {
         return s1!=s2 && s1!="unknown" && s2!="unknown";
     }
 
+    // Like alldiff(s1,s2), but s1 may be "unknown"
+    static bool alldiff1u(const string& s1, const string& s2) {
+        return s1!=s2 && s2!="unknown";
+    }
+
+    // Test if s1, s2, and s3 are all different and neither is "unknown"
     static bool alldiff(const string& s1, const string& s2, const string& s3) {
         return s1!=s2 && s1!=s3 && s2!=s3
             && s1!="unknown" && s2!="unknown" && s3!="unknown";
     }
 
+    // Like alldiff(s1,s2,s3), but s2 or s3 may be "unknown"
+    static bool alldiff23u(const string& s1, const string& s2, const string& s3) {
+        return s1!=s2 && s1!=s3
+            && s1!="unknown";
+    }
+
+    // Test if s1, s2, s3 and s4 are all different and neither is "unknown"
     static bool alldiff(const string& s1, const string& s2, const string& s3, const string& s4) {
         return s1!=s2 && s1!=s3 && s1!=s4 && s2!=s3 && s2!=s4 && s3!=s4
             && s1!="unknown" && s2!="unknown" && s3!="unknown" && s4!="uknown";
-    }
-
-    static bool partdiff(const string& s1, const string& s2, const string& s3) {
-        return s1!=s2 && s1!=s3
-            && s1!="unknown";
     }
 };
  
@@ -250,7 +289,7 @@ int main(int argc, char **argv)
         int csv_row = 0;
         
         string csvfile{lang=="Hebrew"
-            ? "BibleOL_verbal-ambiguity-project_v1.48-heb.csv"
+            ? "HEBREW_BibleOL_verbal-ambiguity-project_v1.49-heb.csv"
             : "BibleOL_verbal-ambiguity-project_v1.48-aram.csv"};
 
         try {
