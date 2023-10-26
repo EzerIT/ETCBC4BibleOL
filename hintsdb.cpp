@@ -289,7 +289,7 @@ int main(int argc, char **argv)
         int csv_row = 0;
         
         string csvfile{lang=="Hebrew"
-            ? "HEBREW_BibleOL_verbal-ambiguity-project_v1.50-heb.csv"
+            ? "HEBREW_BibleOL_verbal-ambiguity-project_v1.51-heb.csv"
             : "BibleOL_verbal-ambiguity-project_v1.48-aram.csv"};
 
         try {
