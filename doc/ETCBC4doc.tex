@@ -60,7 +60,7 @@ pdftitle={Generating ETCBC4}
 %%% Font matter %%%
 \title{Generating ETCBC4}
 \author{Claus Tøndering}
-\date{17 January 2023}
+\date{16 January 2024}
 
 
 \begin{document}
@@ -81,20 +81,6 @@ Online Learner on a Linux computer.
 In order to execute this process, you need to clone the GitHub repository
 \texttt{https://github.com/\-EzerIT/ETCBC4BibleOL.git}. In the following description I assume that you
 have cloned the repository into a folder called \texttt{ETCBC4BibleOL}.
-
-You also need a version of the original ETCBC4 Emdros database from the Eep Talstra Centre for Bible
-and Computer. I use what I believe to be version 1.29 from January 2017.
-
-In the \texttt{ETCBC4BibleOL} folder you must locate this line in the Makefile:
-
-\vspace{1ex}
-
-\quad\texttt{BHS4=../bhs4/bhs4  \# Location of source Emdros database}
-
-\vspace{1ex}
-
-\noindent
-and replace ``\texttt{../bhs4/bhs4}'' with the path name of the original ETCBC4 database.
 
 The \emph{emdros\_updater} program depends on the pcre-cpp package, a
 C++ binding for the PCRE regex library. Note that this is PCRE, not
@@ -120,6 +106,12 @@ Executing the command ``make'' in the \texttt{ETCBC4BibleOL} folder should gener
 Emdros database for Bible OL. This takes slightly more than an hour on my computer.
 
 The steps of the process are detailed in the following sections.
+
+\section{Fetching \emph{bhs4}}
+
+The ``curl'' command is executed to fetch \emph{bhs4} from a Dropbox repository. This is the
+original ETCBC4 Emdros database from the Eep Talstra Centre for Bible and Computer. I believe this
+to be version 1.29 from January 2017.
 
 \section{Compiling \emph{emdros\_updater}}
 

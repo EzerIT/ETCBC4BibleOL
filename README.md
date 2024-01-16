@@ -30,7 +30,7 @@ The modifications made to the Emdros database are primarily:
 
 The code is intended to run on a Linux system. The following software must be available:
 
-* Gnu C++ compiler with C++17 support
+* Gnu C++ compiler with C++20 support
 * libprcecpp
 * Emdros
 

@@ -74,9 +74,6 @@ EMDROS_LIBS = $(shell pkg-config --libs emdros)
 LDLIBS= -L /usr/local/lib
 LDFLAGS= -lpcrecpp $(EMDROS_LIBS) -lpthread -ldl
 
-BHS4=../bhs4/bhs4  # Location of source Emdros database
-
-
 # Don't let make(1) delete update.mql if emdros_updater aborts /
 # segfaults.
 #.PRECIOUS: update.mql
@@ -87,11 +84,15 @@ all: ETCBC4 ETCBC4_words.db ETCBC4_hints.db
 emdros_updater:	$(OBJFILES)
 	$(CXX) $(CXXFLAGS) $(LDLIBS) -o $@ $+ $(LDFLAGS)
 
-update.mql:	emdros_updater $(BHS4)
-	./emdros_updater $(BHS4) $@  $(BOOKS_TO_MAKE) 
+bhs4:
+	curl -L 'https://www.dropbox.com/scl/fi/thy1qle2osb395mlxtcwv/v1.29_20170102_bhs4?rlkey=l49gtolsgeukk5mw2o93qc83h' > $@
+
+update.mql:	emdros_updater bhs4
+	./emdros_updater bhs4 $@  $(BOOKS_TO_MAKE) 
+
 
 ETCBC4:	update.mql
-	cp $(BHS4) $@
+	cp bhs4 $@
 	mql -d $@ $+
 	mqldump --batch-create-objects $@ | ./change_mql.sh > x.mql
 	rm $@
@@ -138,6 +139,5 @@ build_heb_es_lex_file: build_heb_es_lex_file.cpp
 
 clean:
 	rm -f $(OBJFILES) $(OBJFILES2) $(OBJFILES3) $(DEPFILES) emdros_updater update.mql ETCBC4 ETCBC4_words.db ETCBC4_hints.db hintsdb.sql hintsdb worddb.sql worddb sequence_map.csv
-
 
 -include $(DEPFILES)
