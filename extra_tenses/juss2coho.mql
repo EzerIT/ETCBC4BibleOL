@@ -1,0 +1,12 @@
+// Copyright © 2024 Claus Tøndering
+// Released under an MIT license.
+// Cohortatives to be changed to jussive
+
+select all objects where [verse book=Genesis and chapter=21 and verse=16 [word FOCUS g_word_nostress='>ER:>EH']] GO
+select all objects where [verse book=Genesis and chapter=50 and verse=5 [word FOCUS g_word_nostress='>E<:ELEH']] GO
+select all objects where [verse book=Numeri and chapter=11 and verse=15 [word FOCUS g_word_nostress='>ER:>EH']] GO
+select all objects where [verse book=Josua and chapter=22 and verse=26 [word FOCUS g_word_nostress='NA<:AFEH']] GO
+select all objects where [verse book=Judices and chapter=6 and verse=39 [word FOCUS g_word_nostress='>:ANAS.EH']] GO
+select all objects where [verse book=Reges_II and chapter=4 and verse=10 [word FOCUS g_word_nostress='NA<:AFEH']] GO
+
+

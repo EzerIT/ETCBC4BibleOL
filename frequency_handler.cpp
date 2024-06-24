@@ -105,7 +105,7 @@ void frequency_handler::finish_prepare()
 	bool please_contact_the_maintaner = false;
 	
 
-        string lexfilename{lang_index==0 ? "ETCBC4-frequency4.06_progression-heb.csv" : "ETCBC4-frequency4.04_progression-aram.csv"};
+        string lexfilename{lang_index==0 ? "ETCBC4-frequency4.07_progression-heb.csv" : "ETCBC4-frequency4.04_progression-aram.csv"};
         rapidcsv::Document lexfile;
 
         try {

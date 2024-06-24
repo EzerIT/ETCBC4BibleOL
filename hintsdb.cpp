@@ -10,6 +10,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include "rapidcsv/src/rapidcsv.h"
 
 #include "emdros_iterators.hpp"
@@ -17,15 +18,199 @@
 
 using namespace std;
 
+// Unified columns
 enum class cols {
     original_order,book,chapter,verse,lex,verb_classes,verb_classes_correction,
-    g_word_nocant,not_usable_for_exercises_because_kq,g_word_nocant_utf8,
+    g_word_nocant,g_word_noaccent1,not_usable_for_exercises_because_kq,g_word_nocant_utf8,
     ps1,nu1,gn1,vt1,vs1,suffix_person1,suffix_number1,suffix_gender1,st1,
     ps2,nu2,gn2,vt2,vs2,suffix_person2,suffix_number2,suffix_gender2,st2,
     ps3,nu3,gn3,vt3,vs3,suffix_person3,suffix_number3,suffix_gender3,st3,
-    ps4,nu4,gn4,vt4,vs4,suffix_person4,suffix_number4,suffix_gender4,st4
+    ps4,nu4,gn4,vt4,vs4,suffix_person4,suffix_number4,suffix_gender4,st4, 
+    ps5,nu5,gn5,vt5,vs5,suffix_person5,suffix_number5,suffix_gender5,st5, 
+    ps6,nu6,gn6,vt6,vs6,suffix_person6,suffix_number6,suffix_gender6,st6, 
+    ps7,nu7,gn7,vt7,vs7,suffix_person7,suffix_number7,suffix_gender7,st7, 
+    ps8,nu8,gn8,vt8,vs8,suffix_person8,suffix_number8,suffix_gender8,st8,
+    COLMAX
 };
 
+// Columns in Aramaic file
+enum class cols_aram {
+    original_order,book,chapter,verse,lex,verb_classes,verb_classes_correction,
+    g_word_noaccent1,not_usable_for_exercises_because_kq,g_word_nocant_utf8,
+    ps1,nu1,gn1,vt1,vs1,suffix_person1,suffix_number1,suffix_gender1,st1,
+    ps2,nu2,gn2,vt2,vs2,suffix_person2,suffix_number2,suffix_gender2,st2,
+    ps3,nu3,gn3,vt3,vs3,suffix_person3,suffix_number3,suffix_gender3,st3,
+    ps4,nu4,gn4,vt4,vs4,suffix_person4,suffix_number4,suffix_gender4,st4, 
+    COLMAX
+};
+
+// Columns in Hebrew file
+enum class cols_heb {
+    original_order,book,chapter,verse,lex,verb_classes,
+    g_word_nocant,g_word_nocant_utf8,
+    ps1,nu1,gn1,vt1,vs1,suffix_person1,suffix_number1,suffix_gender1,st1,
+    ps2,nu2,gn2,vt2,vs2,suffix_person2,suffix_number2,suffix_gender2,st2,
+    ps3,nu3,gn3,vt3,vs3,suffix_person3,suffix_number3,suffix_gender3,st3,
+    ps4,nu4,gn4,vt4,vs4,suffix_person4,suffix_number4,suffix_gender4,st4, 
+    ps5,nu5,gn5,vt5,vs5,suffix_person5,suffix_number5,suffix_gender5,st5, 
+    ps6,nu6,gn6,vt6,vs6,suffix_person6,suffix_number6,suffix_gender6,st6, 
+    ps7,nu7,gn7,vt7,vs7,suffix_person7,suffix_number7,suffix_gender7,st7, 
+    ps8,nu8,gn8,vt8,vs8,suffix_person8,suffix_number8,suffix_gender8,st8, 
+    COLMAX
+};
+    
+vector<string> unify(bool is_hebrew, const vector<string>& columns)
+{
+    vector<string> u((int)cols::COLMAX);
+    
+    if (is_hebrew) {
+        for (int i=0; i<min((vector<string>::size_type)cols_heb::COLMAX,columns.size()); ++i) {
+            cols destix;
+            switch ((cols_heb)i) {
+              case cols_heb::original_order:          destix = cols::original_order;          break;
+              case cols_heb::book:                    destix = cols::book;                    break;
+              case cols_heb::chapter:                 destix = cols::chapter;                 break;
+              case cols_heb::verse:                   destix = cols::verse;                   break;
+              case cols_heb::lex:                     destix = cols::lex;                     break;
+              case cols_heb::verb_classes:            destix = cols::verb_classes;            break;
+              case cols_heb::g_word_nocant:           destix = cols::g_word_nocant;           break;
+              case cols_heb::g_word_nocant_utf8:      destix = cols::g_word_nocant_utf8;      break;
+              case cols_heb::ps1:                     destix = cols::ps1;                     break;
+              case cols_heb::nu1:                     destix = cols::nu1;                     break;
+              case cols_heb::gn1:                     destix = cols::gn1;                     break;
+              case cols_heb::vt1:                     destix = cols::vt1;                     break;
+              case cols_heb::vs1:                     destix = cols::vs1;                     break;
+              case cols_heb::suffix_person1:          destix = cols::suffix_person1;          break;
+              case cols_heb::suffix_number1:          destix = cols::suffix_number1;          break;
+              case cols_heb::suffix_gender1:          destix = cols::suffix_gender1;          break;
+              case cols_heb::st1:                     destix = cols::st1;                     break;
+              case cols_heb::ps2:                     destix = cols::ps2;                     break;
+              case cols_heb::nu2:                     destix = cols::nu2;                     break;
+              case cols_heb::gn2:                     destix = cols::gn2;                     break;
+              case cols_heb::vt2:                     destix = cols::vt2;                     break;
+              case cols_heb::vs2:                     destix = cols::vs2;                     break;
+              case cols_heb::suffix_person2:          destix = cols::suffix_person2;          break;
+              case cols_heb::suffix_number2:          destix = cols::suffix_number2;          break;
+              case cols_heb::suffix_gender2:          destix = cols::suffix_gender2;          break;
+              case cols_heb::st2:                     destix = cols::st2;                     break;
+              case cols_heb::ps3:                     destix = cols::ps3;                     break;
+              case cols_heb::nu3:                     destix = cols::nu3;                     break;
+              case cols_heb::gn3:                     destix = cols::gn3;                     break;
+              case cols_heb::vt3:                     destix = cols::vt3;                     break;
+              case cols_heb::vs3:                     destix = cols::vs3;                     break;
+              case cols_heb::suffix_person3:          destix = cols::suffix_person3;          break;
+              case cols_heb::suffix_number3:          destix = cols::suffix_number3;          break;
+              case cols_heb::suffix_gender3:          destix = cols::suffix_gender3;          break;
+              case cols_heb::st3:                     destix = cols::st3;                     break;
+              case cols_heb::ps4:                     destix = cols::ps4;                     break;
+              case cols_heb::nu4:                     destix = cols::nu4;                     break;
+              case cols_heb::gn4:                     destix = cols::gn4;                     break;
+              case cols_heb::vt4:                     destix = cols::vt4;                     break;
+              case cols_heb::vs4:                     destix = cols::vs4;                     break;
+              case cols_heb::suffix_person4:          destix = cols::suffix_person4;          break;
+              case cols_heb::suffix_number4:          destix = cols::suffix_number4;          break;
+              case cols_heb::suffix_gender4:          destix = cols::suffix_gender4;          break;
+              case cols_heb::st4:                     destix = cols::st4;                     break;
+              case cols_heb::ps5:                     destix = cols::ps5;                     break;
+              case cols_heb::nu5:                     destix = cols::nu5;                     break;
+              case cols_heb::gn5:                     destix = cols::gn5;                     break;
+              case cols_heb::vt5:                     destix = cols::vt5;                     break;
+              case cols_heb::vs5:                     destix = cols::vs5;                     break;
+              case cols_heb::suffix_person5:          destix = cols::suffix_person5;          break;
+              case cols_heb::suffix_number5:          destix = cols::suffix_number5;          break;
+              case cols_heb::suffix_gender5:          destix = cols::suffix_gender5;          break;
+              case cols_heb::st5:                     destix = cols::st5;                     break;
+              case cols_heb::ps6:                     destix = cols::ps6;                     break;
+              case cols_heb::nu6:                     destix = cols::nu6;                     break;
+              case cols_heb::gn6:                     destix = cols::gn6;                     break;
+              case cols_heb::vt6:                     destix = cols::vt6;                     break;
+              case cols_heb::vs6:                     destix = cols::vs6;                     break;
+              case cols_heb::suffix_person6:          destix = cols::suffix_person6;          break;
+              case cols_heb::suffix_number6:          destix = cols::suffix_number6;          break;
+              case cols_heb::suffix_gender6:          destix = cols::suffix_gender6;          break;
+              case cols_heb::st6:                     destix = cols::st6;                     break;
+              case cols_heb::ps7:                     destix = cols::ps7;                     break;
+              case cols_heb::nu7:                     destix = cols::nu7;                     break;
+              case cols_heb::gn7:                     destix = cols::gn7;                     break;
+              case cols_heb::vt7:                     destix = cols::vt7;                     break;
+              case cols_heb::vs7:                     destix = cols::vs7;                     break;
+              case cols_heb::suffix_person7:          destix = cols::suffix_person7;          break;
+              case cols_heb::suffix_number7:          destix = cols::suffix_number7;          break;
+              case cols_heb::suffix_gender7:          destix = cols::suffix_gender7;          break;
+              case cols_heb::st7:                     destix = cols::st7;                     break;
+              case cols_heb::ps8:                     destix = cols::ps8;                     break;
+              case cols_heb::nu8:                     destix = cols::nu8;                     break;
+              case cols_heb::gn8:                     destix = cols::gn8;                     break;
+              case cols_heb::vt8:                     destix = cols::vt8;                     break;
+              case cols_heb::vs8:                     destix = cols::vs8;                     break;
+              case cols_heb::suffix_person8:          destix = cols::suffix_person8;          break;
+              case cols_heb::suffix_number8:          destix = cols::suffix_number8;          break;
+              case cols_heb::suffix_gender8:          destix = cols::suffix_gender8;          break;
+              case cols_heb::st8:                     destix = cols::st8;                     break;
+            }
+            u[(int)destix] = columns[i];
+        }
+    }
+    else {
+        for (int i=0; i<min((vector<string>::size_type)cols_aram::COLMAX,columns.size()); ++i) {
+            cols destix;
+            switch ((cols_aram)i) {
+              case cols_aram::original_order:                      destix = cols::original_order;                      break;
+              case cols_aram::book:                                destix = cols::book;                                break;
+              case cols_aram::chapter:                             destix = cols::chapter;                             break;
+              case cols_aram::verse:                               destix = cols::verse;                               break;
+              case cols_aram::lex:                                 destix = cols::lex;                                 break;
+              case cols_aram::verb_classes:                        destix = cols::verb_classes;                        break;
+              case cols_aram::verb_classes_correction:             destix = cols::verb_classes_correction;             break;
+              case cols_aram::g_word_noaccent1:                    destix = cols::g_word_noaccent1;                    break;
+              case cols_aram::not_usable_for_exercises_because_kq: destix = cols::not_usable_for_exercises_because_kq; break;
+              case cols_aram::g_word_nocant_utf8:                  destix = cols::g_word_nocant_utf8;                  break;
+              case cols_aram::ps1:                                 destix = cols::ps1;                                 break;
+              case cols_aram::nu1:                                 destix = cols::nu1;                                 break;
+              case cols_aram::gn1:                                 destix = cols::gn1;                                 break;
+              case cols_aram::vt1:                                 destix = cols::vt1;                                 break;
+              case cols_aram::vs1:                                 destix = cols::vs1;                                 break;
+              case cols_aram::suffix_person1:                      destix = cols::suffix_person1;                      break;
+              case cols_aram::suffix_number1:                      destix = cols::suffix_number1;                      break;
+              case cols_aram::suffix_gender1:                      destix = cols::suffix_gender1;                      break;
+              case cols_aram::st1:                                 destix = cols::st1;                                 break;
+              case cols_aram::ps2:                                 destix = cols::ps2;                                 break;
+              case cols_aram::nu2:                                 destix = cols::nu2;                                 break;
+              case cols_aram::gn2:                                 destix = cols::gn2;                                 break;
+              case cols_aram::vt2:                                 destix = cols::vt2;                                 break;
+              case cols_aram::vs2:                                 destix = cols::vs2;                                 break;
+              case cols_aram::suffix_person2:                      destix = cols::suffix_person2;                      break;
+              case cols_aram::suffix_number2:                      destix = cols::suffix_number2;                      break;
+              case cols_aram::suffix_gender2:                      destix = cols::suffix_gender2;                      break;
+              case cols_aram::st2:                                 destix = cols::st2;                                 break;
+              case cols_aram::ps3:                                 destix = cols::ps3;                                 break;
+              case cols_aram::nu3:                                 destix = cols::nu3;                                 break;
+              case cols_aram::gn3:                                 destix = cols::gn3;                                 break;
+              case cols_aram::vt3:                                 destix = cols::vt3;                                 break;
+              case cols_aram::vs3:                                 destix = cols::vs3;                                 break;
+              case cols_aram::suffix_person3:                      destix = cols::suffix_person3;                      break;
+              case cols_aram::suffix_number3:                      destix = cols::suffix_number3;                      break;
+              case cols_aram::suffix_gender3:                      destix = cols::suffix_gender3;                      break;
+              case cols_aram::st3:                                 destix = cols::st3;                                 break;
+              case cols_aram::ps4:                                 destix = cols::ps4;                                 break;
+              case cols_aram::nu4:                                 destix = cols::nu4;                                 break;
+              case cols_aram::gn4:                                 destix = cols::gn4;                                 break;
+              case cols_aram::vt4:                                 destix = cols::vt4;                                 break;
+              case cols_aram::vs4:                                 destix = cols::vs4;                                 break;
+              case cols_aram::suffix_person4:                      destix = cols::suffix_person4;                      break;
+              case cols_aram::suffix_number4:                      destix = cols::suffix_number4;                      break;
+              case cols_aram::suffix_gender4:                      destix = cols::suffix_gender4;                      break;
+              case cols_aram::st4:                                 destix = cols::st4;                                 break;
+            }
+            u[(int)destix] = columns[i];
+        }
+    }
+
+    return u;
+}
+
+
+    
 string at(const vector<string>& r, int c)
 {
     if (c >= r.size())
@@ -47,6 +232,10 @@ int count_var(const vector<string>& r)
     if (!at(r,cols::ps2).empty()) ++count;
     if (!at(r,cols::ps3).empty()) ++count;
     if (!at(r,cols::ps4).empty()) ++count;
+    if (!at(r,cols::ps5).empty()) ++count;
+    if (!at(r,cols::ps6).empty()) ++count;
+    if (!at(r,cols::ps7).empty()) ++count;
+    if (!at(r,cols::ps8).empty()) ++count;
 
     return count;
 }
@@ -208,6 +397,27 @@ class selector {
         return "INDETERMINATE 3";
     }
 
+    // Note: diff8() is programmed very ad-hoc. Future information may require a more sophisticated mechanism
+    static string diff8(const vector<string>&r) {
+        // We assume that the appropriate hint string will be
+        // ps≠p3,vs≠hif,suffix_person≠p1
+
+        if (at(r,cols::ps1)!="p3" && at(r,cols::vs1)!="hif" && at(r,cols::suffix_person1)!="p1" &&
+            !(at(r,cols::ps2)!="p3" && at(r,cols::vs2)!="hif" && at(r,cols::suffix_person2)!="p1") &&
+            !(at(r,cols::ps3)!="p3" && at(r,cols::vs3)!="hif" && at(r,cols::suffix_person3)!="p1") &&
+            !(at(r,cols::ps4)!="p3" && at(r,cols::vs4)!="hif" && at(r,cols::suffix_person4)!="p1") &&
+            !(at(r,cols::ps5)!="p3" && at(r,cols::vs5)!="hif" && at(r,cols::suffix_person5)!="p1") &&
+            !(at(r,cols::ps6)!="p3" && at(r,cols::vs6)!="hif" && at(r,cols::suffix_person6)!="p1") &&
+            !(at(r,cols::ps7)!="p3" && at(r,cols::vs7)!="hif" && at(r,cols::suffix_person7)!="p1") &&
+            !(at(r,cols::ps8)!="p3" && at(r,cols::vs8)!="hif" && at(r,cols::suffix_person8)!="p1"))
+            return "ps≠p3,vs≠hif,suffix_person≠p1";
+
+        for (auto rc : r)
+            cerr << rc << " ";
+        cerr << "INDETERMINATE 4\n";
+        return "INDETERMINATE 4";
+    }
+
   private:
     // This identifies the feature differentiators by order of relevance.
     inline static array feat_diff1{cols::ps1, cols::gn1, cols::nu1, cols::vt1, cols::vs1, cols::suffix_person1, cols::suffix_number1, cols::suffix_gender1, cols::st1};
@@ -289,7 +499,7 @@ int main(int argc, char **argv)
         int csv_row = 0;
         
         string csvfile{lang=="Hebrew"
-            ? "HEBREW_BibleOL_verbal-ambiguity-project_v1.53-heb.csv"
+            ? "HEBREW_BibleOL_verbal-ambiguity-project_v1.57-heb.csv"
             : "BibleOL_verbal-ambiguity-project_v1.48-aram.csv"};
 
         try {
@@ -327,9 +537,9 @@ int main(int argc, char **argv)
                 }
             }
 
-            vector<string> row = csv.GetRow<string>(csv_row++);
+            vector<string> row = unify(lang=="Hebrew",csv.GetRow<string>(csv_row++));
 
-            // For Aramaic column cols:g_word_nocant has a different interpretation, so we just check
+            // For Aramaic column cols:g_word_nocant is empty, so we just check
             // this column in the Hebrew case
             if (lang=="Hebrew" && g_word_nocant != at(row,cols::g_word_nocant)) {
                 cerr << "Warning: Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << '\n'
@@ -342,11 +552,18 @@ int main(int argc, char **argv)
                     cerr << "Warning: Inconsistency between database and spreadsheet at original order " << at(row,cols::original_order) << " word is " << g_word_nocant << '\n'
                          << "Spreadsheet has feature " << i << "=" << at(row,int(cols::ps1)+i)
                          << " Emdros has " << features[i] << '\n';
+                    if (i==3 && features[i]=="juss" && at(row,int(cols::ps1)+i)=="impf") {
+                        row[int(cols::ps1)+i] = features[i];
+                        cerr << "Corrected to " << at(row,int(cols::ps1)+i) << "\n";
+                    }
                 }
             }
 
 
             switch (count_var(row)) {
+              case 8:
+                    sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff8(row) << "');\n";
+                    break;
               case 4:
                     sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff4(row) << "');\n";
                     break;
@@ -355,6 +572,12 @@ int main(int argc, char **argv)
                     break;
               case 2:
                     sqlfile << "INSERT INTO hints VALUES(" << self << ",'" << selector::diff2(row) << "');\n";
+                    break;
+              case 1:
+                    break;
+              default:
+                    cerr << "A line with " << count_var(row) << " alternatives found at original order "
+                         << at(row,cols::original_order) << ". This number of alternatives is not supported.\n";
                     break;
             }
         }

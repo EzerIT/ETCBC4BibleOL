@@ -1,19 +1,22 @@
 #!/bin/bash
 
-# Copyright © 2017 Ezer IT Consulting.
+# Copyright © 2024 Claus Tøndering
 # Released under an MIT License.
 
 echo Copying database...
 cp ../ETCBC4 .
 
+echo Finding jussives that must be changed to cohortatives
+jus2co=$(mql -d ETCBC4 juss2coho.mql | ./extract_monads.sh)
+
 echo Finding cohortatives...
-coho=$(mql -d ETCBC4 cohortative.mql | ./extract_monads.sh)
+coho=$(mql -d ETCBC4 cohortative.mql | ./extract_monads.sh; echo "$jus2co")
 
 echo Finding emphatic imperatives...
 emim=$(mql -d ETCBC4 emphatic_imperative.mql | ./extract_monads.sh)
 
 echo Finding jussives...
-juss=$(mql -d ETCBC4 jussive.mql | ./extract_monads.sh | uniq)
+juss=$(mql -d ETCBC4 jussive.mql | ./extract_monads.sh | uniq | grep -F -w -v "$jus2co")
 
 echo Generating update script...
 cat <<EOF > update.mql
